@@ -12,7 +12,7 @@ import (
 
 
 const (
-	GAMESDATAPATH = "resources/games_data.json"
+	GAMESDATAPATH = "../resources/games_data.json"
 	DATAPATH      = "data/"
 )
 
