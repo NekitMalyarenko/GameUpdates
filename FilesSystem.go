@@ -12,7 +12,7 @@ import (
 
 
 const (
-	GAMESDATAPATH = "../resources/games_data.json"
+	GAMESDATAPATH = "games_data.json"
 	DATAPATH      = "data/"
 )
 
@@ -50,6 +50,7 @@ func getGamesData() map[int]GameData {
 	result := make(map[int]GameData)
 
 	data := make([]GameData, 0, 1)
+	log.Println("GamesDataPath:", GAMESDATAPATH)
 	raw, err := ioutil.ReadFile(GAMESDATAPATH)
 
 	if err != nil {
