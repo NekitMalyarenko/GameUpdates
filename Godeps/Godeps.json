@@ -1,0 +1,29 @@
+{
+	"ImportPath": ".",
+	"GoVersion": "go1.9",
+	"GodepVersion": "v79",
+	"Deps": [
+		{
+			"ImportPath": "github.com/Syfaro/telegram-bot-api",
+			"Comment": "v4.6.1",
+			"Rev": "2022d04b94f50056a09962b1ac81cdd821d20a55"
+		},
+		{
+			"ImportPath": "github.com/opesun/goquery",
+			"Rev": "0d77e43213cdea88ecac8dd5fbdf10890e373035"
+		},
+		{
+			"ImportPath": "github.com/opesun/goquery/exp/html",
+			"Rev": "0d77e43213cdea88ecac8dd5fbdf10890e373035"
+		},
+		{
+			"ImportPath": "github.com/opesun/goquery/exp/html/atom",
+			"Rev": "0d77e43213cdea88ecac8dd5fbdf10890e373035"
+		},
+		{
+			"ImportPath": "github.com/technoweenie/multipartstreamer",
+			"Comment": "v1.0.1",
+			"Rev": "a90a01d73ae432e2611d178c18367fbaa13e0154"
+		}
+	]
+}
