@@ -1,10 +1,12 @@
 {
 	"comment": "",
+	"heroku": {
+		"goVersion": "go1.9.2",
+		"install": [
+			"."
+		]
+	},
 	"ignore": "test",
 	"package": [],
-	"rootPath": "D:/Projects/go/GameUpdates/src",
-	"heroku": {
-		"install" : [ "./..." ],
-		"goVersion": "go1.9.2"
-	}
+	"rootPath": "D:/Projects/go/GameUpdates/src"
 }
