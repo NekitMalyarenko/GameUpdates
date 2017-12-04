@@ -19,6 +19,10 @@ var games map[int]GameData
 
 func main() {
 	log.Println("\tStart")
+	test()
+	log.Println("\tEND")
+
+	/*log.Println("\tStart")
 	devide()
 
 	log.Println("\tLoading Games Data")
@@ -37,7 +41,7 @@ func main() {
 	devide()
 
 	log.Println("\tStarting Page Grabber")
-	pageGrabber()
+	pageGrabber()*/
 }
 
 

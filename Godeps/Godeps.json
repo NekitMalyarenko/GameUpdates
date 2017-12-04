@@ -1,5 +1,5 @@
 {
-	"ImportPath": "github.com/NekitMalyarenko/GameUpdates",
+	"ImportPath": ".",
 	"GoVersion": "go1.9",
 	"GodepVersion": "v79",
 	"Deps": [
@@ -7,6 +7,16 @@
 			"ImportPath": "github.com/Syfaro/telegram-bot-api",
 			"Comment": "v4.6.1",
 			"Rev": "2022d04b94f50056a09962b1ac81cdd821d20a55"
+		},
+		{
+			"ImportPath": "github.com/lib/pq",
+			"Comment": "go1.0-cutoff-195-g83612a5",
+			"Rev": "83612a56d3dd153a94a629cd64925371c9adad78"
+		},
+		{
+			"ImportPath": "github.com/lib/pq/oid",
+			"Comment": "go1.0-cutoff-195-g83612a5",
+			"Rev": "83612a56d3dd153a94a629cd64925371c9adad78"
 		},
 		{
 			"ImportPath": "github.com/opesun/goquery",
