@@ -2,9 +2,6 @@ package main
 
 import (
 	"log"
-	"io/ioutil"
-	"os"
-	"strings"
 )
 
 //Games id's
@@ -12,7 +9,7 @@ const(
 	PUBG = 0
 )
 
-var games map[int]GameData
+//var games map[int]GameData
 
 //var root = "D:/Projects/go/GameUpdates/src"
 
@@ -50,7 +47,7 @@ func devide() {
 }
 
 
-func checkFile(name string) {
+/*func checkFile(name string) {
 
 	log.Println(name)
 
@@ -108,3 +105,4 @@ func checkError(err error){
 		panic(err)
 	}
 }
+*/
