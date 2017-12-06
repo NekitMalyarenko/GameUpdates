@@ -1,1 +1,1 @@
-worker: ps:exec bin/GameUpdates
+worker: GameUpdates
