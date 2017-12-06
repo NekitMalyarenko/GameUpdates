@@ -39,9 +39,11 @@ func startBot() {
 
 		log.Printf("[%s] %s", update.Message.From.FirstName, update.Message.Text)
 
+		temp := games[PUBG]
+
 		if strings.Contains(update.Message.Text, "/subscribe") {
 
-			if games[PUBG].subscribeUser(db, update.Message.Chat.ID) {
+			if temp.subscribeUser(db, update.Message.Chat.ID) {
 				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Вы успешно подписались на обновления по PUBG")
 				bot.Send(msg)
 			} else {
@@ -51,7 +53,7 @@ func startBot() {
 
 		} else if strings.Contains(update.Message.Text, "/unsubscribe") {
 
-			if games[PUBG].unSubscribeUser(db, update.Message.Chat.ID) {
+			if temp.unSubscribeUser(db, update.Message.Chat.ID) {
 				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Вы успешно отписались от обновлений по PUBG")
 				bot.Send(msg)
 			} else {
