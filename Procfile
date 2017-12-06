@@ -1,1 +1,1 @@
-worker : run bin/GameUpdates
+worker : bin/GameUpdates
