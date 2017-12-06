@@ -9,14 +9,39 @@
 			"Rev": "2022d04b94f50056a09962b1ac81cdd821d20a55"
 		},
 		{
-			"ImportPath": "github.com/lib/pq",
-			"Comment": "go1.0-cutoff-195-g83612a5",
-			"Rev": "83612a56d3dd153a94a629cd64925371c9adad78"
+			"ImportPath": "github.com/jackc/pgx",
+			"Comment": "v3.0.1-80-g2b88c8f",
+			"Rev": "2b88c8f64f4692742fb02854aa5c3a4217a4a71d"
 		},
 		{
-			"ImportPath": "github.com/lib/pq/oid",
-			"Comment": "go1.0-cutoff-195-g83612a5",
-			"Rev": "83612a56d3dd153a94a629cd64925371c9adad78"
+			"ImportPath": "github.com/jackc/pgx/chunkreader",
+			"Comment": "v3.0.1-80-g2b88c8f",
+			"Rev": "2b88c8f64f4692742fb02854aa5c3a4217a4a71d"
+		},
+		{
+			"ImportPath": "github.com/jackc/pgx/internal/sanitize",
+			"Comment": "v3.0.1-80-g2b88c8f",
+			"Rev": "2b88c8f64f4692742fb02854aa5c3a4217a4a71d"
+		},
+		{
+			"ImportPath": "github.com/jackc/pgx/pgio",
+			"Comment": "v3.0.1-80-g2b88c8f",
+			"Rev": "2b88c8f64f4692742fb02854aa5c3a4217a4a71d"
+		},
+		{
+			"ImportPath": "github.com/jackc/pgx/pgproto3",
+			"Comment": "v3.0.1-80-g2b88c8f",
+			"Rev": "2b88c8f64f4692742fb02854aa5c3a4217a4a71d"
+		},
+		{
+			"ImportPath": "github.com/jackc/pgx/pgtype",
+			"Comment": "v3.0.1-80-g2b88c8f",
+			"Rev": "2b88c8f64f4692742fb02854aa5c3a4217a4a71d"
+		},
+		{
+			"ImportPath": "github.com/jackc/pgx/stdlib",
+			"Comment": "v3.0.1-80-g2b88c8f",
+			"Rev": "2b88c8f64f4692742fb02854aa5c3a4217a4a71d"
 		},
 		{
 			"ImportPath": "github.com/opesun/goquery",
@@ -29,6 +54,11 @@
 		{
 			"ImportPath": "github.com/opesun/goquery/exp/html/atom",
 			"Rev": "0d77e43213cdea88ecac8dd5fbdf10890e373035"
+		},
+		{
+			"ImportPath": "github.com/pkg/errors",
+			"Comment": "v0.8.0-7-gf15c970",
+			"Rev": "f15c970de5b76fac0b59abb32d62c17cc7bed265"
 		},
 		{
 			"ImportPath": "github.com/technoweenie/multipartstreamer",
