@@ -4,6 +4,7 @@ import (
 	"github.com/Syfaro/telegram-bot-api"
 	"log"
 	"strings"
+	"os"
 )
 
 
@@ -60,10 +61,10 @@ func startBot() {
 				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Что-то пошло не так.Возможно вы не подписаны на обновление по PUBG?")
 				bot.Send(msg)
 			}
+		} else {
+			msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
+			bot.Send(msg)
 		}
-
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
-		bot.Send(msg)
 	}
 
 	//devide()
@@ -74,8 +75,14 @@ func (g *GameData) notifyUsersAboutUpdate(update UpdateData) {
 	users := g.getAllUsers(db)
 
 	for _, temp := range users {
-		log.Println("notifying user with id:", temp.TelegramId,"about update in", g.GameShortName)
+		log.Println("notifying user with id(", temp.TelegramId,") about update in", g.GameShortName)
 		msg := tgbotapi.NewMessage(int64(temp.TelegramId), update.Url)
-		bot.Send(msg)
+
+		if bot != nil {
+			bot.Send(msg)
+		} else {
+			log.Fatal("!!!!!BOT IS NIL!!!!!")
+			os.Exit(228)
+		}
 	}
 }

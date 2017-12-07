@@ -53,7 +53,7 @@ func (u *UpdateData) isUpdateHot(data GameData) bool {
 
 func pageGrabber() {
 
-	for {
+	for i :=0; ;i++{
 
 		for key, temp := range games {
 			update := temp.getLastUpdate()
@@ -70,12 +70,18 @@ func pageGrabber() {
 				games[key] = updatedGameData
 			}else{
 				devide()
-				log.Println("\tI haven't found updates for ", temp.GameShortName)
+				log.Println("\tI haven't found updates for", temp.GameShortName)
 				devide()
 			}
 		}
 
-		time.Sleep(SLEEPING * time.Second)
+		if i == 5 {
+			i = 0
+
+			//h,m,s := time.Now().Clock()
+		}
+
+		time.Sleep( (SLEEPING ) * time.Second)
 	}
 
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"database/sql"
+	"time"
 )
 
 type GameData struct {
@@ -47,6 +48,8 @@ func main() {
 	go startBot()
 	log.Println("\tSuccessfuly started Telegram Bot")
 	devide()
+
+	time.Sleep(5 * time.Second)
 
 	log.Println("\tStarting Page Grabber")
 	pageGrabber()
