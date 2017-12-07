@@ -97,7 +97,7 @@ func (g *GameData) getAllUsers(db *sql.DB) []User{
 		subscribes string
 	)
 
-	result := make([]User, 1, 10)
+	result := make([]User, 0, 10)
 
 	for i := 0;rows.Next();i++ {
 		err = rows.Scan(&telegramId, &subscribes)
