@@ -7,7 +7,7 @@ import(
 	"strconv"
 	"encoding/json"
 	"errors"
-	"GameUpdates/data"
+	"../data"
 )
 
 

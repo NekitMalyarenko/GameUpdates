@@ -1,7 +1,6 @@
 package telegram
 
 import (
-	_"GameUpdates/data"
 )
 
 const (

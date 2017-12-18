@@ -5,8 +5,8 @@ import (
 	"log"
 	"os"
 	"math/rand"
-	"GameUpdates/db"
-	"GameUpdates/data"
+	"../data"
+	"../db"
 )
 
 
