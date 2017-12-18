@@ -5,8 +5,8 @@ import (
 	"log"
 	"os"
 	"math/rand"
-	"../data"
-	"../db"
+	"data"
+	"db"
 )
 
 

@@ -5,8 +5,8 @@ import (
 	"github.com/Syfaro/telegram-bot-api"
 	"log"
 	"encoding/json"
-	"../data"
-	"../db"
+	"data"
+	"db"
 )
 
 

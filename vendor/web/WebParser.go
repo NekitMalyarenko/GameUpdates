@@ -3,10 +3,10 @@ package web
 import (
 	"github.com/opesun/goquery"
 	"strings"
-	"github.com/NekitMalyarenko/GameUpdates/data"
+	"data"
 	"log"
-	"github.com/NekitMalyarenko/GameUpdates/telegram"
-	"github.com/NekitMalyarenko/GameUpdates/db"
+	"telegram"
+	"db"
 	"time"
 )
 
