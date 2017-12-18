@@ -1,9 +1,12 @@
 package main
 
 import (
-	_"github.com/jackc/pgx/stdlib"
-	_"github.com/Syfaro/telegram-bot-api"
 	"log"
+	"data"
+	"db"
+	"telegram"
+	"time"
+	"web"
 )
 
 
@@ -11,7 +14,7 @@ import (
 func main() {
 	log.Println("Start")
 
-	/*log.Println("Getting games")
+	log.Println("Getting games")
 	data.SetGames(db.GetGamesData())
 	defer db.CloseConnection()
 	log.Println("Successfuly got games")
@@ -23,5 +26,5 @@ func main() {
 	time.Sleep(5 * time.Second)
 
 	log.Println("Starting Page Grabber")
-	web.PageGrabber()*/
+	web.PageGrabber()
 }
