@@ -71,7 +71,7 @@ func handleMessage(update tgbotapi.Update) tgbotapi.Chattable {
 		if strings.Contains(text, "/unsubscribe") {
 			user, err := db.GetUser(chatId)
 			if err != nil {
-				log.Fatal(err)
+				log.Println(err)
 				return tgbotapi.NewMessage(update.Message.Chat.ID, err.Error())
 			}
 
@@ -90,7 +90,7 @@ func handleMessage(update tgbotapi.Update) tgbotapi.Chattable {
 		} else if strings.Contains(text, "/subscribe") {
 			user, err := db.GetUser(chatId)
 			if err != nil {
-				log.Fatal(err)
+				log.Println(err)
 				return tgbotapi.NewMessage(update.Message.Chat.ID, err.Error())
 			}
 

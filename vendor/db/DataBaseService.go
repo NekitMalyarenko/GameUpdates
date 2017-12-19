@@ -6,7 +6,6 @@ import(
 	"log"
 	"strconv"
 	"encoding/json"
-	"errors"
 	"data"
 )
 
@@ -141,7 +140,8 @@ func GetUser(telegramId int64) (User, error) {
 
 		return User{TelegramId : telegramId, Subscribes:subscribes}, nil
 	} else {
-		return User{}, errors.New("no such user with id:" + strconv.FormatInt(telegramId, 10))
+		log.Println("no such user with id:" + strconv.FormatInt(telegramId, 10))
+		return User{Subscribes: make([]int, 0)}, nil
 	}
 }
 

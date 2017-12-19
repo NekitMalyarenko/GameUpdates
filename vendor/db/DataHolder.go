@@ -8,14 +8,14 @@ type User struct {
 }
 
 const(
-	GAMES_ID =             "id"
-	GAMES_SHORT_NAME =     "short_name"
-	GAMES_FULL_NAME =      "full_name"
-	GAMES_WEBSITE =        "game_website"
-	GAMES_LAST_UPDATE_ID = "last_update_id"
+	GAMES_ID              = "id"
+	GAMES_SHORT_NAME      = "short_name"
+	GAMES_FULL_NAME       = "full_name"
+	GAMES_WEBSITE         = "game_website"
+	GAMES_LAST_UPDATE_ID  = "last_update_id"
 
-	USERS_TELEGRAM_ID =    "telegram_id"
-	USERS_SUBSCRIBES =     "subscribes"
+	USERS_TELEGRAM_ID     = "telegram_id"
+	USERS_SUBSCRIBES      = "subscribes"
 )
 
 var (
