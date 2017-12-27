@@ -11,14 +11,17 @@ import (
 
 
 const (
-	BOTTOKEN = "456900455:AAF2uhU9KSd6Gsld4c2M_eZ9b_HDQHggsEI"
+	BOTTOKEN       = "456900455:AAF2uhU9KSd6Gsld4c2M_eZ9b_HDQHggsEI"
+	ITEMS_PER_PAGE = 4
 )
 
 
-var bot *tgbotapi.BotAPI
+var (
+	bot *tgbotapi.BotAPI
 
-var defaultAnswers = []string{"К сожалению,я не понимаю тебя =(", "А можно по-русски?",
-								"Что ты несеш?", "Я тебе не Sire", "Я тебе не Алиса"}
+	defaultAnswers = []string{"К сожалению,я не понимаю тебя =(", "А можно по-русски?",
+		"Что ты несеш?", "Я тебе не Sire", "Я тебе не Алиса"}
+)
 
 
 func StartBot() {
@@ -39,10 +42,6 @@ func StartBot() {
 	updates, err := bot.GetUpdatesChan(u)
 
 	for update := range updates {
-		//log.Printf("[%s] %s", update.Message.From.FirstName, update.Message.Text)
-
-		//temp := games[PUBG]
-
 		res := handleMessage(update)
 
 		if res == nil {
@@ -60,13 +59,17 @@ func StartBot() {
 				log.Fatal(err)
 			}
 	}
+}
 
-	//devide()
+
+func putOnHold(chatId int64, messageId int){
+	holdMessage := tgbotapi.NewEditMessageReplyMarkup(chatId, messageId, tgbotapi.InlineKeyboardMarkup{InlineKeyboard: make([][]tgbotapi.InlineKeyboardButton, 0)})
+	bot.Send(holdMessage)
 }
 
 
 func NotifyUsersAboutUpdate(game *data.GameData, message string) {
-	users := db.GetAllUsers(game)
+	users := db.GetDBManager().GetAllUsers(game)
 
 	for _, temp := range users {
 		log.Println("notifying user with id(", temp.TelegramId,") about update in", game.GameShortName)

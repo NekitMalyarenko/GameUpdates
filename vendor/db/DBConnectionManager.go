@@ -1,11 +1,19 @@
 package db
 
-import "database/sql"
+import (
+	"database/sql"
+	"sync"
+)
 
 type User struct {
 	TelegramId int64
 	Subscribes []int
 }
+
+type dbManager struct {
+	db *sql.DB
+}
+
 
 const(
 	GAMES_ID              = "id"
@@ -20,5 +28,17 @@ const(
 
 var (
 	connectionString = "user=knpamodhrsrykd password=f426870c9669c69c1b5db08f02e2b268851a4d31a194a59b9bd2bf96ac3bd28f host=ec2-54-235-76-111.compute-1.amazonaws.com port=5432 database=dcnrf1jkrmd6k7 sslmode=require"
-	db *sql.DB
+	manager *dbManager
+	once sync.Once
 )
+
+
+func GetDBManager() *dbManager {
+	once.Do(func() {
+		manager = &dbManager{
+			db:openConnection(),
+		}
+	})
+
+	return manager
+}

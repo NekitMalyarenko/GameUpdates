@@ -10,12 +10,13 @@ import (
 )
 
 
-
 func main() {
+
 	log.Println("Start")
 
 	log.Println("Getting games")
-	data.SetGames(db.GetGamesData())
+	data.SetGames(db.GetDBManager().GetGamesData())
+
 	defer db.CloseConnection()
 	log.Println("Successfuly got games")
 

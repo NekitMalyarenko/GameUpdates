@@ -48,6 +48,16 @@ func getLastUpdate(g *data.GameData) UpdateData{
 
 		id = string(runes[startIndex:endIndex])
 
+	case data.RUST:
+		rowData, _ := goquery.ParseUrl("https://rust.facepunch.com/blog/")
+		root := rowData.Find(".yeargroup .column div .is-9")
+
+		tempId := strings.TrimSpace(root.Find(".month").Eq(0).Text())
+		endIndex := len(tempId) - 2
+		id = tempId[:endIndex]
+
+		url = "https://rust.facepunch.com" + rowData.Find(".is-10 div a").Attr("href")
+
 	default:
 		panic("i don't know this website!")
 	}
@@ -56,11 +66,15 @@ func getLastUpdate(g *data.GameData) UpdateData{
 }
 
 
-func (u *UpdateData) isUpdateHot(data *data.GameData) bool {
+func (u *UpdateData) isUpdateHot(gameData *data.GameData) bool {
 
-	switch data.GameId {
-		default:
-			return u.Id  > data.LastUpdateId
+	switch gameData.GameId {
+
+	case data.RUST:
+		return u.Id != gameData.LastUpdateId
+
+	default:
+		return u.Id  > gameData.LastUpdateId
 	}
 
 	return false
@@ -81,7 +95,7 @@ func PageGrabber() {
 				go telegram.NotifyUsersAboutUpdate(temp, update.Url)
 
 				temp.LastUpdateId = update.Id
-				db.SaveGamesData(temp)
+				db.GetDBManager().SaveGamesData(temp)
 			}else{
 				log.Println("\tI haven't found updates for", temp.GameShortName)
 			}

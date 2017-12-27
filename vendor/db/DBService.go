@@ -10,15 +10,6 @@ import(
 )
 
 
-func getConnection() *sql.DB {
-	if db == nil {
-		db = openConnection()
-	}
-
-	return db
-}
-
-
 func openConnection() *sql.DB{
 	db, err := sql.Open("pgx", connectionString)
 	if err != nil{
@@ -29,12 +20,10 @@ func openConnection() *sql.DB{
 }
 
 
-func GetGamesData() map[int]*data.GameData {
-	db := getConnection()
-
+func (manager *dbManager) GetGamesData() map[int]*data.GameData {
 	sqlQuery := "SELECT * FROM games;"
 
-	rows, err := db.Query(sqlQuery)
+	rows, err := manager.db.Query(sqlQuery)
 	if err != nil{
 		log.Fatal(err)
 	}
@@ -63,8 +52,8 @@ func GetGamesData() map[int]*data.GameData {
 }
 
 
-func SaveGamesData(g *data.GameData) {
-	db := getConnection()
+func (manager *dbManager) SaveGamesData(g *data.GameData) {
+	db := manager.db
 
 	sqlQuery := "UPDATE games SET " + GAMES_SHORT_NAME + "='" + g.GameShortName + "',"
 	sqlQuery += GAMES_FULL_NAME + "='" + g.GameFullName + "'," + GAMES_WEBSITE + "='" + g.GameWebsite + "'," + GAMES_LAST_UPDATE_ID + "='" + g.LastUpdateId + "' "
@@ -79,8 +68,8 @@ func SaveGamesData(g *data.GameData) {
 }
 
 
-func GetAllUsers(g *data.GameData) []User{
-	db := getConnection()
+func (manager *dbManager) GetAllUsers(g *data.GameData) []User{
+	db := manager.db
 	sqlQuery := "SELECT * FROM users WHERE " + USERS_SUBSCRIBES + " like '[%" + strconv.Itoa(g.GameId) + "%]';"
 
 	rows, err := db.Query(sqlQuery)
@@ -116,8 +105,8 @@ func GetAllUsers(g *data.GameData) []User{
 }
 
 
-func GetUser(telegramId int64) (User, error) {
-	db := getConnection()
+func (manager *dbManager) GetUser(telegramId int64) (User, error) {
+	db := manager.db
 	query := "select subscribes from users where " + USERS_TELEGRAM_ID + "=" + strconv.FormatInt(telegramId, 10)
 
 	rows, err := db.Query(query)
@@ -146,8 +135,8 @@ func GetUser(telegramId int64) (User, error) {
 }
 
 
-func SubscribeUser(g *data.GameData, telegramId int64) bool{
-	db := getConnection()
+func (manager *dbManager) SubscribeUser(g *data.GameData, telegramId int64) bool{
+	db := manager.db
 
 	selectQuery := "select subscribes from users where " + USERS_TELEGRAM_ID + "=" + strconv.FormatInt(telegramId, 10) + ";"
 	insertQuery := "insert into users(" + USERS_TELEGRAM_ID + "," + USERS_SUBSCRIBES + ")" + " values('" + strconv.FormatInt(telegramId, 10) + "','[" + strconv.Itoa(g.GameId) + "]');"
@@ -208,8 +197,8 @@ func SubscribeUser(g *data.GameData, telegramId int64) bool{
 }
 
 
-func UnSubscribeUser(g *data.GameData, telegramId int64) bool {
-	db := getConnection()
+func (manager *dbManager) UnSubscribeUser(g *data.GameData, telegramId int64) bool {
+	db := manager.db
 	selectQuery := "select subscribes from users where " + USERS_TELEGRAM_ID + "=" + strconv.FormatInt(telegramId, 10) + ";"
 
 	rows, err := db.Query(selectQuery)
@@ -261,6 +250,6 @@ func UnSubscribeUser(g *data.GameData, telegramId int64) bool {
 
 
 func CloseConnection(){
-	db.Close()
+	manager.db.Close()
 	log.Println("DB connection was closed")
 }
