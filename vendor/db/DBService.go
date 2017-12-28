@@ -27,7 +27,11 @@ func (manager *dbManager) GetGamesData() map[int]*data.GameData {
 	if err != nil{
 		log.Fatal(err)
 	}
-	defer rows.Close()
+	close := func() {
+		rows.Close()
+		log.Println("CLOSING ROWS")
+	}
+	defer close()
 
 	var (
 		id           int
@@ -113,6 +117,11 @@ func (manager *dbManager) GetUser(telegramId int64) (User, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	close := func() {
+		rows.Close()
+		log.Println("CLOSING ROWS")
+	}
+	defer close()
 
 	if rows.Next() {
 		var(
