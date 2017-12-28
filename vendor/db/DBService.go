@@ -113,6 +113,7 @@ func (manager *dbManager) GetUser(telegramId int64) (User, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer rows.Close()
 
 	if rows.Next() {
 		var(
