@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"db"
+	"time"
 )
 
 
@@ -31,10 +32,12 @@ func main() {
 
 func test() {
 	log.Println("Test 1")
-	db.GetDBManager()
-	go db.GetDBManager()
-	go db.GetDBManager()
-	go db.GetDBManager()
+	db.GetDBManager().GetGamesData()
+	go db.GetDBManager().GetUser(0)
+	go db.GetDBManager().GetGamesData()
+	go db.GetDBManager().GetGamesData()
+
+	time.Sleep(120 * time.Second)
 
 	db.CloseConnection()
 }
