@@ -10,7 +10,6 @@ import (
 	"time"
 )
 
-
 type UpdateData struct {
 	Id  string
 	Url string
@@ -57,6 +56,16 @@ func getLastUpdate(g *data.GameData) UpdateData{
 		id = tempId[:endIndex]
 
 		url = "https://rust.facepunch.com" + rowData.Find(".is-10 div a").Attr("href")
+
+	case data.CSGO:
+		rowData, _ := goquery.ParseUrl("http://blog.counter-strike.net/index.php/category/updates/")
+		temp := rowData.Find("#post_container .inner_post").Eq(0)
+
+		id = temp.Find(".post_date").Text()
+		id = strings.Replace(id, " ", "", -1)
+		id = strings.Replace(id, "-", "", -1)
+
+		url = temp.Find("h2 a").Attr("href")
 
 	default:
 		panic("i don't know this website!")

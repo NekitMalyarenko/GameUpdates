@@ -1,0 +1,328 @@
+package telegram
+
+import (
+	"strings"
+	"github.com/Syfaro/telegram-bot-api"
+	"log"
+	"encoding/json"
+	"data"
+	"db"
+)
+
+
+const(
+	ACTION_UNSUBSCRIBE = "action_1"
+	ACTION_SUBSCRIBE   = "subscribe"
+
+	ACTION_CANCEL      = "cancel"
+
+	ACTION_CHANGE_PAGE = "page_change"
+	ACTION_FIRST_PAGE  = "page_first"
+	ACTION_LAST_PAGE   = "page_last"
+
+	GREETING_MESSAGE   = "Привет,для того чтобы оповещать тебя об обновлениях в играх,я должен знать что тебе интересно." +
+		"Чтобы подписаться на обновление по игре:\n1)написать /subscribe и найти интересующую тебе игру."
+)
+
+
+
+func handleMessage(update tgbotapi.Update) tgbotapi.Chattable {
+
+	if update.CallbackQuery != nil {
+		chatId := update.CallbackQuery.Message.Chat.ID
+		messageId := update.CallbackQuery.Message.MessageID
+		go putOnHold(chatId, messageId)
+		callbackData := fromJson([]byte(update.CallbackQuery.Data))
+
+		switch callbackData.Action {
+
+		case ACTION_SUBSCRIBE:
+			game := data.GetGame(callbackData.GameId)
+
+			if db.GetDBManager().SubscribeUser(game, chatId) {
+				return tgbotapi.NewEditMessageText(chatId, messageId, "Вы успешно подписались на обновления по " + game.GameShortName)
+			} else {
+				return tgbotapi.NewEditMessageText(chatId, messageId,"Что-то пошло не так,возможно вы уже подписаны на обновление по " + game.GameShortName + "?")
+			}
+		break
+
+		case ACTION_UNSUBSCRIBE:
+			game := data.GetGame(callbackData.GameId)
+
+			if db.GetDBManager().UnSubscribeUser(game, chatId) {
+				return tgbotapi.NewEditMessageText(chatId, messageId, "Вы успешно отписались от обновлений по " + game.GameShortName)
+			} else {
+				return tgbotapi.NewEditMessageText(chatId, messageId,"Что-то пошло не так,возможно вы не подписаны на обновление по " + game.GameShortName + "?")
+			}
+		break
+
+		case ACTION_CHANGE_PAGE, ACTION_LAST_PAGE, ACTION_FIRST_PAGE:
+			page := callbackData.Page
+			pageAction := callbackData.Temp
+			user, err := db.GetDBManager().GetUser(chatId)
+			if err != nil {
+				log.Println(err)
+				return tgbotapi.NewMessage(update.Message.Chat.ID, err.Error())
+			}
+
+			switch pageAction {
+
+			case ACTION_SUBSCRIBE:
+				return tgbotapi.NewEditMessageReplyMarkup(chatId, messageId, getSubscribeKeyboard(user, page))
+
+			case ACTION_UNSUBSCRIBE:
+				return tgbotapi.NewEditMessageReplyMarkup(chatId, messageId, getUnSubscribeKeyboard(user, page))
+			}
+
+		break
+
+		case ACTION_CANCEL:
+			return tgbotapi.DeleteMessageConfig{ChatID : chatId, MessageID : messageId}
+
+		default:
+			return nil
+
+		}
+
+	} else {
+		chatId := update.Message.Chat.ID
+		text := update.Message.Text
+
+		if strings.Contains(text, "/unsubscribe") {
+			user, err := db.GetDBManager().GetUser(chatId)
+			if err != nil {
+				log.Println(err)
+				return tgbotapi.NewMessage(update.Message.Chat.ID, err.Error())
+			}
+
+			keyboard := getUnSubscribeKeyboard(user, 0)
+			var msg tgbotapi.MessageConfig
+
+			if keyboard.InlineKeyboard != nil {
+				msg = tgbotapi.NewMessage(chatId, "Вы можите отписаться от:")
+				msg.ReplyMarkup = keyboard
+			} else {
+				msg = tgbotapi.NewMessage(chatId, "Вы не подписаны не на одну игру!")
+			}
+
+			return msg
+
+		} else if strings.Contains(text, "/subscribe") {
+			user, err := db.GetDBManager().GetUser(chatId)
+			if err != nil {
+				log.Println(err)
+				return tgbotapi.NewMessage(update.Message.Chat.ID, err.Error())
+			}
+
+			keyboard := getSubscribeKeyboard(user, 0)
+			var msg tgbotapi.MessageConfig
+
+			if keyboard.InlineKeyboard != nil {
+				msg = tgbotapi.NewMessage(chatId, "Вы можите подписаться на:")
+				msg.ReplyMarkup = keyboard
+			} else {
+				msg = tgbotapi.NewMessage(chatId, "Вы уже подписаны на все игры =(")
+			}
+
+			return msg
+
+		} else if strings.Contains(text, "/start")  {
+			msg := tgbotapi.NewMessage(chatId, "test")
+			msg.ReplyMarkup = getBottomKeyboard()
+			return msg
+		}
+	}
+
+	return nil
+}
+
+
+func getUnSubscribeKeyboard(u db.User, page int) tgbotapi.InlineKeyboardMarkup {
+	res := make([][]tgbotapi.InlineKeyboardButton, 0)
+	startIndex := page * ITEMS_PER_PAGE
+	endIndex := startIndex + ITEMS_PER_PAGE
+
+
+	for i := 0; i < len(u.Subscribes); i++ {
+		tempId := u.Subscribes[i]
+
+		log.Println(startIndex, "<=", i, "<", endIndex, startIndex <= i  && endIndex > i )
+
+		if startIndex <= i && endIndex > i {
+			callbackData := MyCallbackData{Action : ACTION_UNSUBSCRIBE, GameId : tempId}
+			res = append(res, tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData(data.GetGame(tempId).GameFullName, callbackData.toJson())))
+		}
+	}
+
+
+	if len(res) == 0 {
+		return tgbotapi.InlineKeyboardMarkup{
+			InlineKeyboard: nil,
+		}
+	} else {
+		var hasNext bool
+
+		if endIndex > (len(u.Subscribes) - 1) {
+			hasNext = false
+		} else {
+			hasNext = true
+		}
+		//log.Println(hasNext)
+		temp := getBottomLine(page, hasNext, ACTION_UNSUBSCRIBE)
+		res = join(res, temp)
+
+		return tgbotapi.InlineKeyboardMarkup{
+			InlineKeyboard: res,
+		}
+	}
+}
+
+
+func getSubscribeKeyboard(u db.User, page int) tgbotapi.InlineKeyboardMarkup {
+	res := make([][]tgbotapi.InlineKeyboardButton, 0)
+	hasNext := false
+	startIndex := (page * ITEMS_PER_PAGE) - 1
+	endIndex := startIndex + ITEMS_PER_PAGE + 1
+
+	contains := func(id int) bool{
+		for _, value := range u.Subscribes {
+			if id == value {
+				return true
+			}
+		}
+
+		return false
+	}
+
+	log.Println("start index:", startIndex, "end index:", endIndex, "page:", page)
+
+	for i := 1; i < len(data.GetGames()) + 1; i++ {
+		value := data.GetGame(i)
+
+		log.Println(startIndex, "<", i, "<=", endIndex, ";", startIndex < i  && endIndex >= i )
+
+		if startIndex < i  && endIndex >= i  {
+
+			if !contains(value.GameId) {
+				callbackData := MyCallbackData{Action : ACTION_SUBSCRIBE, GameId : value.GameId}
+				res = append(res, tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData(value.GameFullName, callbackData.toJson()) ))
+			} else {
+				log.Println("endIndex++")
+				endIndex++
+			}
+		}else if i > endIndex {
+
+			if !contains(value.GameId)	{
+				log.Println("not contains",value.GameId )
+				hasNext = true
+				break
+			}
+		}
+	}
+
+	if len(res) == 0 {
+		return tgbotapi.InlineKeyboardMarkup{
+			InlineKeyboard: nil,
+		}
+	} else {
+		temp := getBottomLine(page, hasNext, ACTION_SUBSCRIBE)
+		res = join(res, temp)
+		log.Println("res:", res)
+
+		return tgbotapi.InlineKeyboardMarkup{
+			InlineKeyboard: res,
+		}
+	}
+}
+
+
+func getBottomLine(page int, hasNext bool, action string) [][]tgbotapi.InlineKeyboardButton{
+	keyboard := make([][]tgbotapi.InlineKeyboardButton, 0)
+
+	first, lastPageNumber := false, -1
+	if page == 0 {
+		first = true
+	}
+
+	temp := getNavigationLine(first, hasNext, page, lastPageNumber, action)
+	if len(temp) != 0 {
+		keyboard = append(keyboard, temp)
+	}
+
+	keyboard = append(keyboard, getCancelLine())
+
+
+	return keyboard
+}
+
+
+func getNavigationLine(isFirst, hasNext bool, page, lastPageNumber int, pageAction string) []tgbotapi.InlineKeyboardButton{
+	result := make([]tgbotapi.InlineKeyboardButton, 0)
+
+	var callbackData MyCallbackData
+
+	if !isFirst {
+		/*callbackData = MyCallbackData{Action : ACTION_FIRST_PAGE, Temp : pageAction}
+		result = append(result,  tgbotapi.NewInlineKeyboardButtonData("<<", callbackData.toJson()))*/
+
+		callbackData = MyCallbackData{Action : ACTION_CHANGE_PAGE, Page : page - 1, Temp : pageAction}
+		result = append(result,  tgbotapi.NewInlineKeyboardButtonData("<", callbackData.toJson()))
+	}
+
+	if hasNext {
+		callbackData = MyCallbackData{Action : ACTION_CHANGE_PAGE, Page : page + 1, Temp : pageAction}
+		result = append(result,  tgbotapi.NewInlineKeyboardButtonData(">", callbackData.toJson()))
+		log.Println(callbackData.toJson())
+
+		/*callbackData = MyCallbackData{Action : ACTION_LAST_PAGE, Page : lastPageNumber, Temp : pageAction}
+		result = append(result,  tgbotapi.NewInlineKeyboardButtonData(">>", callbackData.toJson()))*/
+	}
+
+	return result
+}
+
+
+func getCancelLine() []tgbotapi.InlineKeyboardButton {
+	result := make([]tgbotapi.InlineKeyboardButton, 0)
+
+	callbackData := MyCallbackData{Action : ACTION_CANCEL}
+	result = append(result,  tgbotapi.NewInlineKeyboardButtonData("Отмена", callbackData.toJson()))
+
+	return result
+}
+
+
+func (callbackData *MyCallbackData) toJson() string {
+	res, err := json.Marshal(callbackData)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return string(res)
+}
+
+
+func fromJson(input []byte) MyCallbackData {
+	var callbackData MyCallbackData
+	err := json.Unmarshal(input, &callbackData)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return callbackData
+}
+
+
+func join(to [][]tgbotapi.InlineKeyboardButton, from [][]tgbotapi.InlineKeyboardButton) [][]tgbotapi.InlineKeyboardButton {
+
+	for index := range from {
+		to = append(to, make([]tgbotapi.InlineKeyboardButton, 0))
+
+		for _, element := range from[index] {
+			to[len(to) - 1] = append(to[len(to) - 1], element)
+		}
+
+	}
+
+	return to
+}

@@ -2,22 +2,20 @@ package main
 
 import (
 	"log"
-	"db"
-	"time"
 	"data"
+	"db"
 	"telegram"
+	"time"
 	"web"
 )
 
 
 func main() {
-	log.Println("Start")
+	log.Println("\tSTART")
 
 	log.Println("Getting games")
 	data.SetGames(db.GetDBManager().GetGamesData())
-
 	defer db.CloseConnection()
-	log.Println("Successfuly got games")
 
 	log.Println("Starting Telegram Bot")
 	go telegram.StartBot()

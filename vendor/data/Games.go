@@ -13,6 +13,7 @@ const(
 	PUBG  = 1
 	GTA   = 2
 	RUST  = 3
+	CSGO  = 4
 )
 
 
