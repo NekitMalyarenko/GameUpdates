@@ -10,9 +10,13 @@ type GameData struct {
 
 
 const(
-	PUBG  = 1
-	GTA   = 2
-	RUST  = 3
+	PUBG      = 1
+	GTA       = 2
+	RUST      = 3
+	CSGO      = 4
+	OVERWATCH = 5
+	GOVNO     = 6
+	SQUAD     = 7
 )
 
 

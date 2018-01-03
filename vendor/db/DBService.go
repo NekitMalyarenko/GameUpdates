@@ -7,6 +7,7 @@ import(
 	"strconv"
 	"encoding/json"
 	"data"
+	"strings"
 )
 
 
@@ -21,17 +22,13 @@ func openConnection() *sql.DB{
 
 
 func (manager *dbManager) GetGamesData() map[int]*data.GameData {
-	sqlQuery := "SELECT * FROM games;"
+	sqlQuery := "SELECT * FROM games order by id asc;"
 
 	rows, err := manager.db.Query(sqlQuery)
 	if err != nil{
 		log.Fatal(err)
 	}
-	close := func() {
-		rows.Close()
-		log.Println("CLOSING ROWS")
-	}
-	defer close()
+	defer rows.Close()
 
 	var (
 		id           int
@@ -117,11 +114,7 @@ func (manager *dbManager) GetUser(telegramId int64) (User, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	close := func() {
-		rows.Close()
-		log.Println("CLOSING ROWS")
-	}
-	defer close()
+	defer rows.Close()
 
 	if rows.Next() {
 		var(
@@ -167,15 +160,18 @@ func (manager *dbManager) SubscribeUser(g *data.GameData, telegramId int64) bool
 
 		json.Unmarshal([]byte(rowSubscribes), &subscribes)
 
-		contains := false
-		for _, temp := range subscribes{
+		contains := func() bool {
+			for _, temp := range subscribes{
 
-			if temp == g.GameId {
-				contains = true
+				if temp == g.GameId {
+					return true
+				}
 			}
+
+			return false
 		}
 
-		if !contains {
+		if !contains() {
 			subscribes = append(subscribes, g.GameId)
 			resSub, _ := json.Marshal(subscribes)
 
@@ -191,7 +187,6 @@ func (manager *dbManager) SubscribeUser(g *data.GameData, telegramId int64) bool
 		} else {
 			return false
 		}
-
 	}else{
 		_, err = db.Exec(insertQuery)
 		if err == nil{
@@ -255,6 +250,34 @@ func (manager *dbManager) UnSubscribeUser(g *data.GameData, telegramId int64) bo
 	} else {
 		return false
 	}
+}
+
+
+func (manager *dbManager) SearchGame(request string) []int {
+	db := manager.db
+
+	request = strings.ToUpper(request)
+	selectQuery := "select id from games where short_name ILIKE '%" + request + "%' or full_name ILIKE '%" + request + "%' order by id asc limit 4;"
+
+	rows, err := db.Query(selectQuery)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+
+	result := make([]int, 0)
+	var id int
+
+	for rows.Next() {
+		err := rows.Scan(&id)
+		if err != nil{
+			log.Fatal(err)
+		}
+
+		result = append(result, id)
+	}
+
+	return result
 }
 
 

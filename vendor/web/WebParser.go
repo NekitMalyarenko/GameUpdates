@@ -10,7 +10,6 @@ import (
 	"time"
 )
 
-
 type UpdateData struct {
 	Id  string
 	Url string
@@ -57,6 +56,49 @@ func getLastUpdate(g *data.GameData) UpdateData{
 		id = tempId[:endIndex]
 
 		url = "https://rust.facepunch.com" + rowData.Find(".is-10 div a").Attr("href")
+
+	case data.CSGO:
+		rowData, _ := goquery.ParseUrl("http://blog.counter-strike.net/index.php/category/updates/")
+		temp := rowData.Find("#post_container .inner_post").Eq(0)
+
+		id = temp.Find(".post_date").Text()
+		id = strings.Replace(id, " ", "", -1)
+		id = strings.Replace(id, "-", "", -1)
+
+		url = temp.Find("h2 a").Attr("href")
+
+	case data.OVERWATCH:
+		rowData, _ := goquery.ParseUrl("https://playoverwatch.com/ru-ru/game/patch-notes/pc")
+		root := rowData.Find(".patch-notes-default div .lg-9 .patch-notes-body").First()
+
+		id = root.Attr("id")
+		startIndex := strings.Index(id, "-") + 1
+		id = id[startIndex:]
+
+		url = "https://playoverwatch.com/ru-ru/game/patch-notes/pc"
+		break
+
+	case data.GOVNO:
+		rowData, _ := goquery.ParseUrl("http://www.dota2.com/news/updates/")
+		root := rowData.Find("#mainLoop div")
+
+		id = root.Attr("id")
+		startIndex := strings.Index(id, "-") + 1
+		id = id[startIndex:]
+
+		url = root.Find("h2 a").Attr("href")
+		break
+
+	case data.SQUAD:
+		rowData, _ := goquery.ParseUrl("http://joinsquad.com/")
+		root := rowData.Find("#updates .updates-content-box .update").Eq(0)
+
+		id = root.Find("a").Attr("href")
+		url = "http://joinsquad.com" + id
+
+		startIndex := strings.LastIndex(id, "=") + 1
+		id = id[startIndex:]
+		break
 
 	default:
 		panic("i don't know this website!")

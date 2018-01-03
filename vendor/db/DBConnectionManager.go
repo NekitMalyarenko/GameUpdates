@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	"sync"
+	"log"
 )
 
 type User struct {
@@ -38,6 +39,7 @@ func GetDBManager() *dbManager {
 		manager = &dbManager{
 			db:openConnection(),
 		}
+		log.Println("New Connection")
 	})
 
 	return manager

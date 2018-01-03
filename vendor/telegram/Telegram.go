@@ -7,12 +7,13 @@ import (
 	"math/rand"
 	"data"
 	"db"
+	"data/telegram"
 )
 
 
 const (
 	BOTTOKEN       = "456900455:AAF2uhU9KSd6Gsld4c2M_eZ9b_HDQHggsEI"
-	ITEMS_PER_PAGE = 4
+	ITEMS_PER_PAGE = 1
 )
 
 
@@ -38,6 +39,8 @@ func StartBot() {
 
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
+
+	telegramData.Create()
 
 	updates, err := bot.GetUpdatesChan(u)
 
