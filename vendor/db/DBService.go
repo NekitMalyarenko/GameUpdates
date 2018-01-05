@@ -225,6 +225,8 @@ func (manager *dbManager) UnSubscribeUser(g *data.GameData, telegramId int64) bo
 
 		for index, value := range subscribes  {
 
+			log.Println("value:", value)
+
 			if value == g.GameId {
 				temp = index
 				break

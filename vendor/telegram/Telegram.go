@@ -13,7 +13,7 @@ import (
 
 const (
 	BOTTOKEN       = "456900455:AAF2uhU9KSd6Gsld4c2M_eZ9b_HDQHggsEI"
-	ITEMS_PER_PAGE = 1
+	ITEMS_PER_PAGE = 3
 )
 
 

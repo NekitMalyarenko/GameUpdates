@@ -21,7 +21,8 @@ const(
 	ACTION_LAST_PAGE   = "page_last"
 
 	GREETING_MESSAGE   = "Привет,для того чтобы оповещать тебя об обновлениях в играх,я должен знать что тебе интересно." +
-		"Чтобы подписаться на обновление по игре:Нажми кнопку 'Search' и ввиди название игры,после чего выбери ее и нажми 'Подписаться'."
+		"Чтобы подписаться на обновление по игре:\n1)Нажми кнопку 'Поиск' и ввиди название игры,после чего выбери ее и нажми 'Подписаться'." +
+		"\n2)Нажми 'Все игры' и можешь посмотреть все игры которые я поддерживаю."
 )
 
 
@@ -54,6 +55,7 @@ func handleCallbackQuery(update tgbotapi.Update) tgbotapi.Chattable{
 		break
 
 	case ACTION_UNSUBSCRIBE:
+		log.Println("callbackData:", callbackData)
 		game := data.GetGame(callbackData.GameId)
 
 		if db.GetDBManager().UnSubscribeUser(game, chatId) {
@@ -106,10 +108,10 @@ func handleCallbackQuery(update tgbotapi.Update) tgbotapi.Chattable{
 
 		if isSubscribed {
 			callbackData := MyCallbackData{Action : ACTION_UNSUBSCRIBE, GameId : callbackData.GameId}
-			res = append(res, MyButtonData{Text : "Отписаться от " + data.GetGame(callbackData.GameId).GameShortName, CallbackData : callbackData.toJson()})
+			res = append(res, MyButtonData{Text : "ОТПИСАТЬСЯ от " + data.GetGame(callbackData.GameId).GameShortName, CallbackData : callbackData.toJson()})
 		} else {
 			callbackData := MyCallbackData{Action : ACTION_SUBSCRIBE, GameId : callbackData.GameId}
-			res = append(res, MyButtonData{Text : "Подписаться на " + data.GetGame(callbackData.GameId).GameShortName, CallbackData : callbackData.toJson()})
+			res = append(res, MyButtonData{Text : "ПОДПИСАТЬСЯ на " + data.GetGame(callbackData.GameId).GameShortName, CallbackData : callbackData.toJson()})
 		}
 
 		res = append(res, getCancelButton())
@@ -134,21 +136,34 @@ func handleText(update tgbotapi.Update) tgbotapi.Chattable {
 
 	switch text {
 
-	case "Search":
+	case "Поиск":
 		telegramData.RegisterData(chatId, telegramData.NextActionData{Action : ACTION_SEARCH})
 		msg = tgbotapi.NewMessage(chatId, "Напишите примерно как называется игра:")
 		break
 
 
-	case "My Subscribes":
+	case "Мои подписки":
 		keyboard := getUnSubscribeKeyboard(user, 0)
 
 		if keyboard.InlineKeyboard != nil {
-			temp := tgbotapi.NewMessage(chatId, "Нажмите на игру чтобы отписаться от нее:")
+			temp := tgbotapi.NewMessage(chatId, "Нажмите на игру чтобы ОТПИСАТЬСЯ от нее:")
 			temp.ReplyMarkup = keyboard
 			msg = temp
 		} else {
 			msg = tgbotapi.NewMessage(chatId, "Вы не подписаны не на одну игру,нажмите на Search и найдите интересующую вас игру.")
+		}
+
+		break
+
+	case "Все игры":
+		keyboard := getSubscribeKeyboard(user, 0)
+
+		if keyboard.InlineKeyboard != nil {
+			temp := tgbotapi.NewMessage(chatId, "Нажмите на игру чтобы ПОДПИСАТЬСЯ на нее:")
+			temp.ReplyMarkup = keyboard
+			msg = temp
+		}else {
+			msg = tgbotapi.NewMessage(chatId, "Вы уже подписаны на все игры.")
 		}
 
 		break
@@ -200,26 +215,26 @@ func handleNextAction(update tgbotapi.Update, chatId int64, text string) tgbotap
 func getUnSubscribeKeyboard(u db.User, page int) tgbotapi.InlineKeyboardMarkup {
 
 	if len(u.Subscribes) != 0 {
-
 		res := make([]MyButtonData, 0)
 
 		startIndex := page * ITEMS_PER_PAGE
 		endIndex := startIndex + ITEMS_PER_PAGE
-		temp := 0
+		log.Println("startIndex:", startIndex, "endIndex:", endIndex)
 
 		for i := 0; i < len(u.Subscribes); i++ {
 
+			log.Println( startIndex, "<", i, "<", endIndex)
+
 			if startIndex <= i && endIndex > i {
-				callbackData := MyCallbackData{Action: ACTION_UNSUBSCRIBE, GameId: i}
-				res = append(res, MyButtonData{Text: data.GetGame(u.Subscribes[temp]).GameFullName, CallbackData: callbackData.toJson(), IsNewRow: true})
-				temp++
+				callbackData := MyCallbackData{Action: ACTION_CLICK, GameId: u.Subscribes[i]}
+				res = append(res, MyButtonData{Text: data.GetGame(u.Subscribes[i]).GameFullName, CallbackData: callbackData.toJson(), IsNewRow: true})
 			}
 		}
 
 		if len(u.Subscribes) <= endIndex {
-			res = getBottom(res, false, page)
+			res = getBottom(res, false, page, ACTION_UNSUBSCRIBE)
 		} else {
-			res = getBottom(res, true, page)
+			res = getBottom(res, true, page, ACTION_UNSUBSCRIBE)
 		}
 
 		return toInlineKeyboard(res)
@@ -261,6 +276,8 @@ func getSubscribeKeyboard(u db.User, page int) tgbotapi.InlineKeyboardMarkup {
 	startIndex := page * ITEMS_PER_PAGE
 	endIndex := startIndex + ITEMS_PER_PAGE
 
+	log.Println("games:", games)
+
 	if len(games) != 0 {
 
 		var callbackData MyCallbackData
@@ -270,16 +287,16 @@ func getSubscribeKeyboard(u db.User, page int) tgbotapi.InlineKeyboardMarkup {
 			log.Println(startIndex, "<=", i, "<", endIndex, startIndex <= i && endIndex >= i)
 
 			if startIndex <= i && endIndex > i {
-				callbackData = MyCallbackData{Action: ACTION_SUBSCRIBE, GameId: i}
+				callbackData = MyCallbackData{Action: ACTION_SUBSCRIBE, GameId: games[i]}
 				res = append(res, MyButtonData{Text: data.GetGame(games[i]).GameFullName, CallbackData: callbackData.toJson(), IsNewRow: true})
 			}
 
 		}
 
 		if len(games) <= endIndex {
-			getBottom(res, false, page)
+			res = getBottom(res, false, page, ACTION_SUBSCRIBE)
 		} else {
-			getBottom(res, true, page)
+			res = getBottom(res, true, page, ACTION_SUBSCRIBE)
 		}
 
 		return toInlineKeyboard(res)
@@ -292,8 +309,8 @@ func getSubscribeKeyboard(u db.User, page int) tgbotapi.InlineKeyboardMarkup {
 }
 
 
-func getBottom(data []MyButtonData, hasNext bool, page int) []MyButtonData{
-	nav := getNavigationButtons(page, hasNext, ACTION_SUBSCRIBE)
+func getBottom(data []MyButtonData, hasNext bool, page int, action string) []MyButtonData{
+	nav := getNavigationButtons(page, hasNext, action)
 
 	for _, value := range nav {
 		data = append(data, value)

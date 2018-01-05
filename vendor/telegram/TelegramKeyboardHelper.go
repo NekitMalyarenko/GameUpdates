@@ -21,12 +21,10 @@ type MyCallbackData struct {
 
 
 func getKeyboard() tgbotapi.ReplyKeyboardMarkup {
-	res := make([]tgbotapi.KeyboardButton, 0)
+	var firstRow = []tgbotapi.KeyboardButton{tgbotapi.NewKeyboardButton("Все игры"), tgbotapi.NewKeyboardButton("Мои подписки")}
+	var secondRow = []tgbotapi.KeyboardButton{tgbotapi.NewKeyboardButton("Поиск")}
 
-	res = append(res, tgbotapi.NewKeyboardButton("Search"))
-	res = append(res, tgbotapi.NewKeyboardButton("My Subscribes"))
-
-	return tgbotapi.NewReplyKeyboard(res)
+	return tgbotapi.NewReplyKeyboard(firstRow, secondRow)
 }
 
 

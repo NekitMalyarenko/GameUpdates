@@ -10,8 +10,6 @@ import (
 )
 
 
-//Overwatch,Govno,Squad
-
 func main() {
 	log.Println("\tSTART")
 
