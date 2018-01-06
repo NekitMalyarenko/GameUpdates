@@ -29,14 +29,23 @@ func getLastUpdate(g *data.GameData) UpdateData{
 	case data.PUBG:
 		rowData, _ := goquery.ParseUrl("http://www.playbattlegrounds.com/news.pu")
 		temp := rowData.Find("#allList li a").Eq(0).Attr("href")
-		url = "http://www.playbattlegrounds.com" + temp
+		if len(temp) != 0 {
 
-		startIndex := strings.LastIndex(temp, "/") + 1
-		endIndex := strings.LastIndex(temp, ".")
-		tempId := []rune(temp)
-		tempId = tempId[startIndex:endIndex]
+			url = "http://www.playbattlegrounds.com" + temp
 
-		id = string(tempId)
+			log.Println("url:", url)
+
+			startIndex := strings.LastIndex(temp, "/") + 1
+			endIndex := strings.LastIndex(temp, ".")
+			tempId := []rune(temp)
+			tempId = tempId[startIndex:endIndex]
+
+			id = string(tempId)
+		}else {
+			log.Println("!!!PUNG WEBSITE IS DOWN!!!")
+			url = ""
+			id = "0"
+		}
 
 	case data.GTA:
 		rowData, _ := goquery.ParseUrl("http://steamcommunity.com/games/271590/announcements/")
@@ -100,6 +109,37 @@ func getLastUpdate(g *data.GameData) UpdateData{
 		id = id[startIndex:]
 		break
 
+	case data.RAINBOW:
+		rowData, _ := goquery.ParseUrl("https://rainbow6.ubisoft.com/siege/ru-ru/home/index.aspx")
+		root := rowData.Find("#navmenu-v .r6_menu_updates ul .r6_menu_patches").Eq(0)
+
+		id = root.Attr("class")
+		startIndex := strings.LastIndex(id, "r6_menu") + 8
+		id = id[startIndex:]
+		log.Println("id:", id)
+
+		url = "https://rainbow6.ubisoft.com" + root.Find("a").Attr("href")
+		break
+
+	case data.TEAMFORTESS:
+		rowData, _ := goquery.ParseUrl("http://www.teamfortress.com/?tab=updates")
+		root := rowData.Find("#leftColPosts a").Eq(0)
+
+		id = root.Attr("href")
+		startIndex := strings.Index(id, "=") + 1
+		id = id[startIndex:]
+
+		url = "http://www.teamfortress.com/" + root.Attr("href")
+		break
+
+	case data.LOL:
+		rowData, _ := goquery.ParseUrl("https://playhearthstone.com/ru-ru/blog/")
+		root := rowData.Find("#blog-articles li").Eq(1)
+
+		id = root.Attr("data-id")
+		url = "https://playhearthstone.com" + root.Find(".media__bd .article-title a").Attr("href")
+		break
+
 	default:
 		panic("i don't know this website!")
 	}
@@ -112,7 +152,7 @@ func (u *UpdateData) isUpdateHot(gameData *data.GameData) bool {
 
 	switch gameData.GameId {
 
-	case data.RUST:
+	case data.RUST, data.RAINBOW:
 		return u.Id != gameData.LastUpdateId
 
 	default:

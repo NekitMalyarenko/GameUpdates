@@ -62,16 +62,16 @@ func getNavigationButtons(page int, hasNext bool, pageAction string) []MyButtonD
 
 	if page != 0 {
 		callbackData = MyCallbackData{Action : ACTION_CHANGE_PAGE, Page : page - 1, Temp : pageAction}
-		res = append(res, MyButtonData{Text : "<", CallbackData : callbackData.toJson(), IsNewRow : true})
+		res = append(res, MyButtonData{Text : "\u2b05\ufe0f", CallbackData : callbackData.toJson(), IsNewRow : true})
 	}
 
 	if hasNext {
 		callbackData = MyCallbackData{Action : ACTION_CHANGE_PAGE, Page : page + 1, Temp : pageAction}
 
 		if page == 0 {
-			res = append(res, MyButtonData{Text : ">", CallbackData : callbackData.toJson(), IsNewRow : true})
+			res = append(res, MyButtonData{Text : "\u27a1\ufe0f", CallbackData : callbackData.toJson(), IsNewRow : true})
 		} else {
-			res = append(res, MyButtonData{Text : ">", CallbackData : callbackData.toJson(), IsNewRow : false})
+			res = append(res, MyButtonData{Text : "\u27a1\ufe0f", CallbackData : callbackData.toJson(), IsNewRow : false})
 		}
 	}
 
@@ -83,7 +83,7 @@ func getCancelButton() MyButtonData {
 	callbackData := MyCallbackData{Action : ACTION_CANCEL}
 
 	return MyButtonData{
-		Text : "Закрыть",
+		Text : "\u274c",
 		CallbackData : callbackData.toJson(),
 		IsNewRow : true,
 	}
