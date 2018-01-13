@@ -20,9 +20,12 @@ const(
 	ACTION_FIRST_PAGE  = "page_first"
 	ACTION_LAST_PAGE   = "page_last"
 
-	GREETING_MESSAGE   = "Привет,для того чтобы оповещать тебя об обновлениях в играх,я должен знать что тебе интересно." +
+	/*GREETING_MESSAGE   = "Привет,для того чтобы оповещать тебя об обновлениях в играх,я должен знать что тебе интересно." +
 		"Чтобы подписаться на обновление по игре:\n1)Нажми кнопку 'Поиск' и ввиди название игры,после чего выбери ее и нажми 'Подписаться'." +
-		"\n2)Нажми 'Все игры' и можешь посмотреть все игры которые я поддерживаю."
+		"\n2)Нажми 'Все игры' и можешь посмотреть все игры которые я поддерживаю."*/
+	GREETING_MESSAGE   = "Hello,I can't alert you about updates,if i don't know what are you interested in." +
+	"To subscribe on alerts:\n1)Click on 'Search' and type name of game,after that choose one and click 'Subscribe'." +
+	"\n2)Click 'All games' and that's all game which i support.\nIf u have any questions/suggestions write me http://www.t.me/Zikim"
 )
 
 
@@ -48,9 +51,11 @@ func handleCallbackQuery(update tgbotapi.Update) tgbotapi.Chattable{
 		game := data.GetGame(callbackData.GameId)
 
 		if db.GetDBManager().SubscribeUser(game, chatId) {
-			return tgbotapi.NewEditMessageText(chatId, messageId, "Вы успешно подписались на обновления по " + game.GameShortName)
+			//return tgbotapi.NewEditMessageText(chatId, messageId, "Вы успешно подписались на обновления по " + game.GameShortName)
+			return tgbotapi.NewEditMessageText(chatId, messageId, "You successfully subscribed on " + game.GameShortName)
 		} else {
-			return tgbotapi.NewEditMessageText(chatId, messageId,"Что-то пошло не так,возможно вы уже подписаны на обновление по " + game.GameShortName + "?")
+			//return tgbotapi.NewEditMessageText(chatId, messageId,"Что-то пошло не так,возможно вы уже подписаны на обновление по " + game.GameShortName + "?")
+			return tgbotapi.NewEditMessageText(chatId, messageId,"Smth went wrong,sorry =(")
 		}
 		break
 
@@ -59,7 +64,8 @@ func handleCallbackQuery(update tgbotapi.Update) tgbotapi.Chattable{
 		game := data.GetGame(callbackData.GameId)
 
 		if db.GetDBManager().UnSubscribeUser(game, chatId) {
-			return tgbotapi.NewEditMessageText(chatId, messageId, "Вы успешно отписались от обновлений по " + game.GameShortName)
+			//return tgbotapi.NewEditMessageText(chatId, messageId, "Вы успешно отписались от обновлений по " + game.GameShortName)
+			return tgbotapi.NewEditMessageText(chatId, messageId, "You successfully unsubscribed from " + game.GameShortName)
 		} else {
 			return tgbotapi.NewEditMessageText(chatId, messageId,"Что-то пошло не так,возможно вы не подписаны на обновление по " + game.GameShortName + "?")
 		}
@@ -108,10 +114,11 @@ func handleCallbackQuery(update tgbotapi.Update) tgbotapi.Chattable{
 
 		if isSubscribed {
 			callbackData := MyCallbackData{Action : ACTION_UNSUBSCRIBE, GameId : callbackData.GameId}
-			res = append(res, MyButtonData{Text : "ОТПИСАТЬСЯ от " + data.GetGame(callbackData.GameId).GameShortName, CallbackData : callbackData.toJson()})
+			//res = append(res, MyButtonData{Text : "ОТПИСАТЬСЯ от " + data.GetGame(callbackData.GameId).GameShortName, CallbackData : callbackData.toJson()})
+			res = append(res, MyButtonData{Text : "UNSUBSCRIBE from " + data.GetGame(callbackData.GameId).GameShortName, CallbackData : callbackData.toJson()})
 		} else {
 			callbackData := MyCallbackData{Action : ACTION_SUBSCRIBE, GameId : callbackData.GameId}
-			res = append(res, MyButtonData{Text : "ПОДПИСАТЬСЯ на " + data.GetGame(callbackData.GameId).GameShortName, CallbackData : callbackData.toJson()})
+			res = append(res, MyButtonData{Text : "SUBSCRIBE on " + data.GetGame(callbackData.GameId).GameShortName, CallbackData : callbackData.toJson()})
 		}
 
 		res = append(res, getCancelButton())
@@ -136,34 +143,39 @@ func handleText(update tgbotapi.Update) tgbotapi.Chattable {
 
 	switch text {
 
-	case "Поиск":
+	case "Search":
 		telegramData.RegisterData(chatId, telegramData.NextActionData{Action : ACTION_SEARCH})
-		msg = tgbotapi.NewMessage(chatId, "Напишите примерно как называется игра:")
+		//msg = tgbotapi.NewMessage(chatId, "Напишите примерно как называется игра:")
+		msg = tgbotapi.NewMessage(chatId, "Type name of the game:")
 		break
 
 
-	case "Мои подписки":
+	case "My Subscribes":
 		keyboard := getUnSubscribeKeyboard(user, 0)
 
 		if keyboard.InlineKeyboard != nil {
-			temp := tgbotapi.NewMessage(chatId, "Нажмите на игру чтобы ОТПИСАТЬСЯ от нее:")
+			//temp := tgbotapi.NewMessage(chatId, "Нажмите на игру чтобы ОТПИСАТЬСЯ от нее:")
+			temp := tgbotapi.NewMessage(chatId, "Click on the game to UNSUBSCRIBE from it:")
 			temp.ReplyMarkup = keyboard
 			msg = temp
 		} else {
-			msg = tgbotapi.NewMessage(chatId, "Вы не подписаны не на одну игру,нажмите на Search и найдите интересующую вас игру.")
+			//msg = tgbotapi.NewMessage(chatId, "Вы не подписаны не на одну игру,нажмите на Search и найдите интересующую вас игру.")
+			msg = tgbotapi.NewMessage(chatId, "You aren't subscribed on the any game.")
 		}
 
 		break
 
-	case "Все игры":
+	case "All Games":
 		keyboard := getSubscribeKeyboard(user, 0)
 
 		if keyboard.InlineKeyboard != nil {
-			temp := tgbotapi.NewMessage(chatId, "Нажмите на игру чтобы ПОДПИСАТЬСЯ на нее:")
+			//temp := tgbotapi.NewMessage(chatId, "Нажмите на игру чтобы ПОДПИСАТЬСЯ на нее:")
+			temp := tgbotapi.NewMessage(chatId, "Click on the game to SUBSCRIBE on it:")
 			temp.ReplyMarkup = keyboard
 			msg = temp
 		}else {
-			msg = tgbotapi.NewMessage(chatId, "Вы уже подписаны на все игры.")
+			//msg = tgbotapi.NewMessage(chatId, "Вы уже подписаны на все игры.")
+			msg = tgbotapi.NewMessage(chatId, "You are already subscribed on all games.")
 		}
 
 		break
@@ -196,9 +208,11 @@ func handleNextAction(update tgbotapi.Update, chatId int64, text string) tgbotap
 		keyboard := getSearchResultsKeyboard(text)
 
 		if keyboard.InlineKeyboard == nil {
-			msg = tgbotapi.NewMessage(chatId, "К сожелению,я ничего не нашел.")
+			//msg = tgbotapi.NewMessage(chatId, "К сожелению,я ничего не нашел.")
+			msg = tgbotapi.NewMessage(chatId, "Sorry,but i haven found nothing.")
 		} else {
-			temp := tgbotapi.NewMessage(chatId, "Вот что я нашел:")
+			//temp := tgbotapi.NewMessage(chatId, "Вот что я нашел:")
+			temp := tgbotapi.NewMessage(chatId, "That's what i found:")
 			temp.ReplyMarkup = keyboard
 			msg = temp
 		}

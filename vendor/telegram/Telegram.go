@@ -20,8 +20,10 @@ const (
 var (
 	bot *tgbotapi.BotAPI
 
-	defaultAnswers = []string{"К сожалению,я не понимаю тебя =(", "А можно по-русски?",
-		"Что ты несеш?", "Я тебе не Sire", "Я тебе не Алиса"}
+	/*defaultAnswers = []string{"К сожалению,я не понимаю тебя =(", "А можно по-русски?",
+		"Что ты несеш?", "Я тебе не Sire", "Я тебе не Алиса"}*/
+	defaultAnswers = []string{"Sorry but i don't understand you =(", "What?",
+	"What a hell are you talking about?", "I am not a Siri ", "I am not a Google Assistant"}
 )
 
 
