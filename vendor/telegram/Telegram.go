@@ -30,8 +30,7 @@ var (
 func StartBot() {
 	var err error
 
-	//bot, err = tgbotapi.NewBotAPI(configData.GetString(configData.TELEGRAM_BOT_TOKEN))
-	bot, err = tgbotapi.NewBotAPI("522818795:AAFQnTgc-nfziv3zXjb7MNF1PzoSSIjanHI")
+	bot, err = tgbotapi.NewBotAPI(configData.GetString(configData.TELEGRAM_BOT_TOKEN))
 	if err != nil {
 		log.Panic(err)
 	}
