@@ -36,7 +36,7 @@ func getLastUpdate(g *data.GameData)  (UpdateData, bool){
 			endIndex := strings.LastIndex(temp, ".")
 			tempId := []rune(temp)
 			tempId = tempId[startIndex:endIndex]
-
+      
 			id = string(tempId)
 		} else {
 			isWebsiteDown = true
@@ -77,7 +77,7 @@ func getLastUpdate(g *data.GameData)  (UpdateData, bool){
 			id = temp.Find(".post_date").Text()
 			id = strings.Replace(id, " ", "", -1)
 			id = strings.Replace(id, "-", "", -1)
-
+      
 			url = temp.Find("h2 a").Attr("href")
 		} else {
 			isWebsiteDown = true

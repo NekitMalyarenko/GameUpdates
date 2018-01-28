@@ -42,7 +42,6 @@ func StartBot() {
 
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
-
 	telegramData.CreateNextAction()
 
 	updates, err := bot.GetUpdatesChan(u)

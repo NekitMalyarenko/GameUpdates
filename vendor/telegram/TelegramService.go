@@ -198,7 +198,6 @@ func handleText(update tgbotapi.Update) []tgbotapi.Chattable {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	response := make([]tgbotapi.Chattable, 0)
 
 	switch text {
@@ -280,6 +279,15 @@ func handleText(update tgbotapi.Update) []tgbotapi.Chattable {
 		} else {
 			return []tgbotapi.Chattable{msg}
 		}
+
+		break
+
+	case "/start":
+		telegramData.UnRegisterData(chatId)
+		temp := tgbotapi.NewMessage(chatId, GREETING_MESSAGE)
+		temp.ReplyMarkup = getKeyboard()
+		msg = temp
+		break
 	}
 
 	return response
@@ -330,7 +338,7 @@ func handleNextAction(update tgbotapi.Update, chatId int64, text string) tgbotap
 			return tgbotapi.NewMessage(chatId, "Thank you for your answers =)")
 		}
 		break
-
+    
 	}
 
 	return msg
@@ -396,7 +404,6 @@ func getSearchResultsKeyboard(request string) tgbotapi.InlineKeyboardMarkup {
 
 func getSubscribeKeyboard(u db.User, page int) tgbotapi.InlineKeyboardMarkup {
 	res := make([]MyButtonData, 0)
-
 	games := getUniqueGamesForUser(u)
 	startIndex := page * ITEMS_PER_PAGE
 	endIndex := startIndex + ITEMS_PER_PAGE
@@ -425,7 +432,6 @@ func getSubscribeKeyboard(u db.User, page int) tgbotapi.InlineKeyboardMarkup {
 		}
 
 		return toInlineKeyboard(res)
-
 	} else {
 		return tgbotapi.InlineKeyboardMarkup {
 			InlineKeyboard : nil,
