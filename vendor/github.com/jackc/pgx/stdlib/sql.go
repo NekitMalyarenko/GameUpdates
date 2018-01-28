@@ -19,7 +19,7 @@
 // setting an AfterConnect hook.
 //
 //	driverConfig := stdlib.DriverConfig{
-// 		ConnConfig: pgx.ConnConfig{
+// 		ConnConfig: ConnConfig: pgx.ConnConfig{
 //			Logger:   logger,
 //		},
 //		AfterConnect: func(c *pgx.Conn) error {
@@ -158,7 +158,7 @@ func (d *Driver) Open(name string) (driver.Conn, error) {
 		}
 	}
 
-	c := &Conn{conn: conn, driver: d, connConfig: connConfig}
+	c := &Conn{conn: conn, driver: d}
 	return c, nil
 }
 
@@ -210,10 +210,9 @@ func UnregisterDriverConfig(c *DriverConfig) {
 }
 
 type Conn struct {
-	conn       *pgx.Conn
-	psCount    int64 // Counter used for creating unique prepared statement names
-	driver     *Driver
-	connConfig pgx.ConnConfig
+	conn    *pgx.Conn
+	psCount int64 // Counter used for creating unique prepared statement names
+	driver  *Driver
 }
 
 func (c *Conn) Prepare(query string) (driver.Stmt, error) {
@@ -304,24 +303,14 @@ func (c *Conn) Query(query string, argsV []driver.Value) (driver.Rows, error) {
 		return nil, driver.ErrBadConn
 	}
 
-	if !c.connConfig.PreferSimpleProtocol {
-		ps, err := c.conn.Prepare("", query)
-		if err != nil {
-			return nil, err
-		}
-
-		restrictBinaryToDatabaseSqlTypes(ps)
-		return c.queryPrepared("", argsV)
-	}
-
-	rows, err := c.conn.Query(query, valueToInterface(argsV)...)
+	ps, err := c.conn.Prepare("", query)
 	if err != nil {
 		return nil, err
 	}
 
-	// Preload first row because otherwise we won't know what columns are available when database/sql asks.
-	more := rows.Next()
-	return &Rows{rows: rows, skipNext: true, skipNextMore: more}, nil
+	restrictBinaryToDatabaseSqlTypes(ps)
+
+	return c.queryPrepared("", argsV)
 }
 
 func (c *Conn) QueryContext(ctx context.Context, query string, argsV []driver.NamedValue) (driver.Rows, error) {
@@ -329,24 +318,14 @@ func (c *Conn) QueryContext(ctx context.Context, query string, argsV []driver.Na
 		return nil, driver.ErrBadConn
 	}
 
-	if !c.connConfig.PreferSimpleProtocol {
-		ps, err := c.conn.PrepareEx(ctx, "", query, nil)
-		if err != nil {
-			return nil, err
-		}
-
-		restrictBinaryToDatabaseSqlTypes(ps)
-		return c.queryPreparedContext(ctx, "", argsV)
-	}
-
-	rows, err := c.conn.QueryEx(ctx, query, nil, namedValueToInterface(argsV)...)
+	ps, err := c.conn.PrepareEx(ctx, "", query, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	// Preload first row because otherwise we won't know what columns are available when database/sql asks.
-	more := rows.Next()
-	return &Rows{rows: rows, skipNext: true, skipNextMore: more}, nil
+	restrictBinaryToDatabaseSqlTypes(ps)
+
+	return c.queryPreparedContext(ctx, "", argsV)
 }
 
 func (c *Conn) queryPrepared(name string, argsV []driver.Value) (driver.Rows, error) {
@@ -391,7 +370,7 @@ func (c *Conn) Ping(ctx context.Context) error {
 // text format so that pgx.Rows.Values doesn't decode it into a native type
 // (e.g. []int32)
 func restrictBinaryToDatabaseSqlTypes(ps *pgx.PreparedStatement) {
-	for i := range ps.FieldDescriptions {
+	for i, _ := range ps.FieldDescriptions {
 		intrinsic, _ := databaseSqlOIDs[ps.FieldDescriptions[i].DataType]
 		if !intrinsic {
 			ps.FieldDescriptions[i].FormatCode = pgx.TextFormatCode
@@ -429,10 +408,8 @@ func (s *Stmt) QueryContext(ctx context.Context, argsV []driver.NamedValue) (dri
 }
 
 type Rows struct {
-	rows         *pgx.Rows
-	values       []interface{}
-	skipNext     bool
-	skipNextMore bool
+	rows   *pgx.Rows
+	values []interface{}
 }
 
 func (r *Rows) Columns() []string {
@@ -509,14 +486,7 @@ func (r *Rows) Next(dest []driver.Value) error {
 		}
 	}
 
-	var more bool
-	if r.skipNext {
-		more = r.skipNextMore
-		r.skipNext = false
-	} else {
-		more = r.rows.Next()
-	}
-
+	more := r.rows.Next()
 	if !more {
 		if r.rows.Err() == nil {
 			return io.EOF

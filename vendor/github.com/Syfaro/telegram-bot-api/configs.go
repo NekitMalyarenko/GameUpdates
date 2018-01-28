@@ -676,7 +676,7 @@ type SetGameScoreConfig struct {
 	Score              int
 	Force              bool
 	DisableEditMessage bool
-	ChatID             int64
+	ChatID             int
 	ChannelUsername    string
 	MessageID          int
 	InlineMessageID    string
@@ -689,7 +689,7 @@ func (config SetGameScoreConfig) values() (url.Values, error) {
 	v.Add("score", strconv.Itoa(config.Score))
 	if config.InlineMessageID == "" {
 		if config.ChannelUsername == "" {
-			v.Add("chat_id", strconv.FormatInt(config.ChatID, 10))
+			v.Add("chat_id", strconv.Itoa(config.ChatID))
 		} else {
 			v.Add("chat_id", config.ChannelUsername)
 		}

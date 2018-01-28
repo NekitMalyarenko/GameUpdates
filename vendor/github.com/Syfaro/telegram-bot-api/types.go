@@ -657,7 +657,7 @@ type InlineQueryResultGame struct {
 	Type          string                `json:"type"`
 	ID            string                `json:"id"`
 	GameShortName string                `json:"game_short_name"`
-	ReplyMarkup   *InlineKeyboardMarkup `json:"reply_markup,omitempty"`
+	ReplyMarkup   *InlineKeyboardMarkup `json:"reply_markup"`
 }
 
 // ChosenInlineResult is an inline query result chosen by a User
