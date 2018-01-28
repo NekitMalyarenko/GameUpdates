@@ -8,11 +8,13 @@ import(
 	"encoding/json"
 	"data"
 	"strings"
+	"data/config"
 )
 
 
 func openConnection() *sql.DB{
-	db, err := sql.Open("pgx", connectionString)
+	log.Println(configData.GetString(configData.CONNECTION_STRING))
+	db, err := sql.Open("pgx", configData.GetString(configData.CONNECTION_STRING))
 	if err != nil{
 		log.Fatal(err)
 	}
@@ -71,7 +73,13 @@ func (manager *dbManager) SaveGamesData(g *data.GameData) {
 
 func (manager *dbManager) GetAllUsers(g *data.GameData) []User{
 	db := manager.db
-	sqlQuery := "SELECT * FROM users WHERE " + USERS_SUBSCRIBES + " like '[%" + strconv.Itoa(g.GameId) + "%]';"
+	var sqlQuery string
+
+	if g != nil {
+		sqlQuery = "SELECT * FROM users WHERE " + USERS_SUBSCRIBES + " like '[%" + strconv.Itoa(g.GameId) + "%]';"
+	}else {
+		sqlQuery = "SELECT * FROM users;"
+	}
 
 	rows, err := db.Query(sqlQuery)
 	if err != nil{
