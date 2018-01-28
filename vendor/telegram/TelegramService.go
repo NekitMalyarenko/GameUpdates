@@ -280,15 +280,8 @@ func handleText(update tgbotapi.Update) []tgbotapi.Chattable {
 			return []tgbotapi.Chattable{msg}
 		}
 
-		break
-
-	case "/start":
-		telegramData.UnRegisterData(chatId)
-		temp := tgbotapi.NewMessage(chatId, GREETING_MESSAGE)
-		temp.ReplyMarkup = getKeyboard()
-		msg = temp
-		break
 	}
+	
 
 	return response
 }
