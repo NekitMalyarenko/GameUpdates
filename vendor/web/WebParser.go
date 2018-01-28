@@ -8,16 +8,14 @@ import (
 	"telegram"
 	"db"
 	"time"
+	"data/config"
+	"fmt"
 )
 
 type UpdateData struct {
 	Id  string
 	Url string
 }
-
-const(
-	WEB_PARSER_SLEEPING = 60
-)
 
 
 func getLastUpdate(g *data.GameData)  (UpdateData, bool){
@@ -38,7 +36,7 @@ func getLastUpdate(g *data.GameData)  (UpdateData, bool){
 			endIndex := strings.LastIndex(temp, ".")
 			tempId := []rune(temp)
 			tempId = tempId[startIndex:endIndex]
-
+      
 			id = string(tempId)
 		} else {
 			isWebsiteDown = true
@@ -79,7 +77,7 @@ func getLastUpdate(g *data.GameData)  (UpdateData, bool){
 			id = temp.Find(".post_date").Text()
 			id = strings.Replace(id, " ", "", -1)
 			id = strings.Replace(id, "-", "", -1)
-
+      
 			url = temp.Find("h2 a").Attr("href")
 		} else {
 			isWebsiteDown = true
@@ -139,7 +137,6 @@ func getLastUpdate(g *data.GameData)  (UpdateData, bool){
 			id = root.Attr("class")
 			startIndex := strings.LastIndex(id, "r6_menu") + 8
 			id = id[startIndex:]
-			log.Println("id:", id)
 
 			url = "https://rainbow6.ubisoft.com" + root.Find("a").Attr("href")
 		} else {
@@ -198,9 +195,9 @@ func (u *UpdateData) isUpdateHot(gameData *data.GameData) bool {
 
 
 func PageGrabber() {
-
 	games := data.GetGames()
-
+	sleeping := time.Duration(configData.GetInt(configData.WEB_PARSER_TIMEOUT))
+	log.Println("test")
 	for {
 		for _, temp := range games {
 			update, isWebsiteDown := getLastUpdate(temp)
@@ -215,14 +212,14 @@ func PageGrabber() {
 					temp.LastUpdateId = update.Id
 					db.GetDBManager().SaveGamesData(temp)
 				} else {
-					log.Println("\tI haven't found updates for", temp.GameShortName)
+					fmt.Println("\tI haven't found updates for", temp.GameShortName)
 				}
 			} else {
 				log.Println("\t" + temp.GameShortName, "is down")
 			}
 		}
 
-		time.Sleep( WEB_PARSER_SLEEPING * time.Second)
+		time.Sleep(sleeping * time.Second)
 	}
 
 }

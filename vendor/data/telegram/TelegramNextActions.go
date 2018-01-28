@@ -2,28 +2,25 @@ package telegramData
 
 
 type NextActionData struct {
-	Action string
+	Action   string
+	TempData map[string]interface{}
 }
 
 var data map[int64]*NextActionData
 
 
-func Create() {
+func CreateNextAction() {
 	data = make(map[int64]*NextActionData)
 }
 
-
-func RegisterData(telegramId int64, action NextActionData) {
-
+func RegisterNextActionData(telegramId int64, action NextActionData) {
 	data[telegramId] = &action
 }
 
-
-func UnRegisterData(telegramId int64) {
+func UnRegisterNextActionData(telegramId int64) {
 	data[telegramId] = nil
 }
 
-
-func GetData(telegramId int64) *NextActionData{
+func GetNextActionData(telegramId int64) *NextActionData{
 	return data[telegramId]
 }
