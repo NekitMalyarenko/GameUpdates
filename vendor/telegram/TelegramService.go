@@ -281,7 +281,7 @@ func handleText(update tgbotapi.Update) []tgbotapi.Chattable {
 		}
 
 	}
-	
+
 
 	return response
 }

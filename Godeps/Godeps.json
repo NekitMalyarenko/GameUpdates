@@ -64,6 +64,14 @@
 		{
 			"ImportPath": "github.com/opesun/goquery/exp/html/atom",
 			"Rev": "0d77e43213cdea88ecac8dd5fbdf10890e373035"
+		},
+		{
+			"ImportPath": "github.com/heroku/x/hmetrics",
+			"Rev": "705849e307dd75c91728463dea5bfd08ef493e64"
+		},
+		{
+			"ImportPath": "github.com/heroku/x/hmetrics/onload",
+			"Rev": "705849e307dd75c91728463dea5bfd08ef493e64"
 		}
 	]
 }
