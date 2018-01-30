@@ -36,7 +36,7 @@ func getLastUpdate(g *data.GameData)  (UpdateData, bool){
 			endIndex := strings.LastIndex(temp, ".")
 			tempId := []rune(temp)
 			tempId = tempId[startIndex:endIndex]
-      
+
 			id = string(tempId)
 		} else {
 			isWebsiteDown = true
@@ -77,7 +77,7 @@ func getLastUpdate(g *data.GameData)  (UpdateData, bool){
 			id = temp.Find(".post_date").Text()
 			id = strings.Replace(id, " ", "", -1)
 			id = strings.Replace(id, "-", "", -1)
-      
+
 			url = temp.Find("h2 a").Attr("href")
 		} else {
 			isWebsiteDown = true
@@ -160,12 +160,24 @@ func getLastUpdate(g *data.GameData)  (UpdateData, bool){
 		break
 
 	case data.LOL:
-		rowData, _ := goquery.ParseUrl("https://playhearthstone.com/ru-ru/blog/")
+		rowData, _ := goquery.ParseUrl("https://playhearthstone.com/en-us/blog/")
 		if len(rowData.Text()) != 0 {
 			root := rowData.Find("#blog-articles li").Eq(1)
 
 			id = root.Attr("data-id")
 			url = "https://playhearthstone.com" + root.Find(".media__bd .article-title a").Attr("href")
+		} else {
+			isWebsiteDown = true
+		}
+		break
+
+	case data.FORZA_MOTOSPORT:
+		rowData, _ := goquery.ParseUrl("https://forzamotorsport.net/en-US/news")
+		if len(rowData.Text()) != 0 {
+			root := rowData.Find(".news_list .common_item").Eq(0)
+
+			url = root.Find(".media_container .media_element a").Attr("href")
+			id = root.Find(".author_date .date").Text()
 		} else {
 			isWebsiteDown = true
 		}

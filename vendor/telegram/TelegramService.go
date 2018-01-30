@@ -10,16 +10,19 @@ import (
 )
 
 const(
-	ACTION_UNSUBSCRIBE = "action_1"
-	ACTION_SUBSCRIBE   = "subscribe"
-	ACTION_CLICK       = "click"
-	ACTION_SEARCH      = "search"
+	ACTION_UNSUBSCRIBE      = "action_1"
+	ACTION_SUBSCRIBE        = "subscribe"
+	ACTION_CLICK            = "click"
+	ACTION_SEARCH           = "search"
 
-	ACTION_CANCEL      = "cancel"
+	ACTION_CANCEL           = "cancel"
 
-	ACTION_CHANGE_PAGE = "page_change"
-	ACTION_FIRST_PAGE  = "page_first"
-	ACTION_LAST_PAGE   = "page_last"
+	ACTION_CHANGE_PAGE      = "page_change"
+	ACTION_FIRST_PAGE       = "page_first"
+	ACTION_LAST_PAGE        = "page_last"
+
+	ACTION_NEW_UPDATE       = "new_update"
+	ACTION_NEW_UPDATE_CHECK = "new_update_check"
 
 	/*GREETING_MESSAGE   = "Привет,для того чтобы оповещать тебя об обновлениях в играх,я должен знать что тебе интересно." +
 		"Чтобы подписаться на обновление по игре:\n1)Нажми кнопку 'Поиск' и ввиди название игры,после чего выбери ее и нажми 'Подписаться'." +
@@ -198,6 +201,7 @@ func handleText(update tgbotapi.Update) []tgbotapi.Chattable {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	response := make([]tgbotapi.Chattable, 0)
 
 	switch text {
@@ -248,6 +252,16 @@ func handleText(update tgbotapi.Update) []tgbotapi.Chattable {
 		break
 
 
+	case "/alertAboutUpdate":
+
+		if chatId == telegramData.ME {
+			telegramData.UnRegisterNextActionData(chatId)
+			telegramData.RegisterNextActionData(chatId, telegramData.NextActionData{Action: ACTION_NEW_UPDATE})
+			response = append(response, tgbotapi.NewMessage(telegramData.ME, "url:"))
+		}
+		break
+
+
 	/*case "/test":
 		res := make([]MyButtonData, 2)
 
@@ -279,9 +293,7 @@ func handleText(update tgbotapi.Update) []tgbotapi.Chattable {
 		} else {
 			return []tgbotapi.Chattable{msg}
 		}
-
 	}
-
 
 	return response
 }
@@ -331,7 +343,30 @@ func handleNextAction(update tgbotapi.Update, chatId int64, text string) tgbotap
 			return tgbotapi.NewMessage(chatId, "Thank you for your answers =)")
 		}
 		break
-    
+
+		case ACTION_NEW_UPDATE:
+			telegramData.UnRegisterNextActionData(chatId)
+			tempData := make(map[string]interface{}, 0)
+			tempData["url"] = text
+			telegramData.RegisterNextActionData(chatId, telegramData.NextActionData{Action : ACTION_NEW_UPDATE_CHECK, TempData:tempData})
+			return tgbotapi.NewMessage(chatId, "Are you shure (" + text + ")?")
+
+
+	case ACTION_NEW_UPDATE_CHECK:
+		url := nextAction.TempData["url"]
+
+		if text == "y" {
+
+			for _, val := range db.GetDBManager().GetAllUsers(nil) {
+				bot.Send(tgbotapi.NewMessage(val.TelegramId, "Hello! I have been updated. Check out:\n" + url.(string)))
+			}
+
+			telegramData.UnRegisterNextActionData(chatId)
+			return tgbotapi.NewMessage(chatId, "Ok.Done.")
+		} else {
+			telegramData.UnRegisterNextActionData(chatId)
+			return tgbotapi.NewMessage(chatId, "Refuse.")
+		}
 	}
 
 	return msg
@@ -397,6 +432,7 @@ func getSearchResultsKeyboard(request string) tgbotapi.InlineKeyboardMarkup {
 
 func getSubscribeKeyboard(u db.User, page int) tgbotapi.InlineKeyboardMarkup {
 	res := make([]MyButtonData, 0)
+
 	games := getUniqueGamesForUser(u)
 	startIndex := page * ITEMS_PER_PAGE
 	endIndex := startIndex + ITEMS_PER_PAGE
@@ -425,6 +461,7 @@ func getSubscribeKeyboard(u db.User, page int) tgbotapi.InlineKeyboardMarkup {
 		}
 
 		return toInlineKeyboard(res)
+
 	} else {
 		return tgbotapi.InlineKeyboardMarkup {
 			InlineKeyboard : nil,
