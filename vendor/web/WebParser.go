@@ -84,15 +84,15 @@ func getLastUpdate(g *data.GameData)  (UpdateData, bool){
 		}
 
 	case data.OVERWATCH:
-		rowData, _ := goquery.ParseUrl("https://playoverwatch.com/ru-ru/game/patch-notes/pc")
-		if len(rowData.Text()) != 0 {
+		rowData, _ := goquery.ParseUrl("https://playoverwatch.com/en-us/game/patch-notes/pc")
+		if rowData != nil && len(rowData.Text()) != 0 {
 			root := rowData.Find(".patch-notes-default div .lg-9 .patch-notes-body").First()
 
 			id = root.Attr("id")
 			startIndex := strings.Index(id, "-") + 1
 			id = id[startIndex:]
 
-			url = "https://playoverwatch.com/ru-ru/game/patch-notes/pc"
+			url = "https://playoverwatch.com/en-us/game/patch-notes/pc"
 		} else {
 			isWebsiteDown = true
 		}
@@ -176,7 +176,7 @@ func getLastUpdate(g *data.GameData)  (UpdateData, bool){
 		if len(rowData.Text()) != 0 {
 			root := rowData.Find(".news_list .common_item").Eq(0)
 
-			url = root.Find(".media_container .media_element a").Attr("href")
+			url = "https://forzamotorsport.net/en-US/news" + root.Find(".media_container .media_element a").Attr("href")
 			id = root.Find(".author_date .date").Text()
 		} else {
 			isWebsiteDown = true
@@ -209,7 +209,7 @@ func (u *UpdateData) isUpdateHot(gameData *data.GameData) bool {
 func PageGrabber() {
 	games := data.GetGames()
 	sleeping := time.Duration(configData.GetInt(configData.WEB_PARSER_TIMEOUT))
-	log.Println("test")
+
 	for {
 		for _, temp := range games {
 			update, isWebsiteDown := getLastUpdate(temp)
@@ -228,6 +228,7 @@ func PageGrabber() {
 				}
 			} else {
 				log.Println("\t" + temp.GameShortName, "is down")
+				//telegram.SendMessageToMe(temp.GameShortName + " is down")
 			}
 		}
 
