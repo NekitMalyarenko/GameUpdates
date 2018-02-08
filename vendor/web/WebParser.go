@@ -130,7 +130,7 @@ func getLastUpdate(g *data.GameData)  (UpdateData, bool){
 		break
 
 	case data.RAINBOW:
-		rowData, _ := goquery.ParseUrl("https://rainbow6.ubisoft.com/siege/ru-ru/home/index.aspx")
+		/*rowData, _ := goquery.ParseUrl("https://rainbow6.ubisoft.com/siege/ru-ru/home/index.aspx")
 		if len(rowData.Text()) != 0 {
 			root := rowData.Find("#navmenu-v .r6_menu_updates ul .r6_menu_patches").Eq(0)
 
@@ -141,7 +141,8 @@ func getLastUpdate(g *data.GameData)  (UpdateData, bool){
 			url = "https://rainbow6.ubisoft.com" + root.Find("a").Attr("href")
 		} else {
 			isWebsiteDown = true
-		}
+		}*/
+		isWebsiteDown = true
 		break
 
 	case data.TEAMFORTESS:
