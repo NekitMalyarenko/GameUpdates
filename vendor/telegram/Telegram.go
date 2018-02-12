@@ -9,7 +9,6 @@ import (
 	"db"
 	"data/telegram"
 	"fmt"
-	"data/config"
 )
 
 
@@ -31,7 +30,11 @@ var (
 func StartBot() {
 	var err error
 
-	bot, err = tgbotapi.NewBotAPI(configData.GetString(configData.TELEGRAM_BOT_TOKEN))
+	//bot, err = tgbotapi.NewBotAPI(configData.GetString(configData.TELEGRAM_BOT_TOKEN))
+	//456900455:AAF2uhU9KSd6Gsld4c2M_eZ9b_HDQHggsEI
+	//522818795:AAFQnTgc-nfziv3zXjb7MNF1PzoSSIjanHI
+	bot, err = tgbotapi.NewBotAPI("456900455:AAF2uhU9KSd6Gsld4c2M_eZ9b_HDQHggsEI")
+
 	if err != nil {
 		log.Panic(err)
 	}
@@ -44,7 +47,13 @@ func StartBot() {
 	u.Timeout = 60
 	telegramData.CreateNextAction()
 
-	updates, err := bot.GetUpdatesChan(u)
+	test, err := bot.GetChat(tgbotapi.ChatConfig{ChatID:364300070})
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println(test)
+
+	/*updates, err := bot.GetUpdatesChan(u)
 	bot.Send(tgbotapi.NewMessage(telegramData.ME, "I'm alive"))
 
 	for update := range updates {
@@ -68,7 +77,7 @@ func StartBot() {
 				log.Fatal(err)
 			}
 		}
-	}
+	}*/
 }
 
 
@@ -91,6 +100,11 @@ func NotifyUsersAboutUpdate(game *data.GameData, message string) {
 			os.Exit(228)
 		}
 	}
+}
+
+
+func SendMessageToMe(text string) {
+	bot.Send(tgbotapi.NewMessage(telegramData.ME, text))
 }
 
 
