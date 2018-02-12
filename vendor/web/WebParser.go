@@ -28,7 +28,7 @@ func getLastUpdate(g *data.GameData)  (UpdateData, bool){
 	case data.PUBG:
 		rowData, _ := goquery.ParseUrl("http://www.playbattlegrounds.com/news.pu")
 
-		if len(rowData.Text()) != 0 {
+		if rowData != nil && len(rowData.Text()) != 0 {
 			temp := rowData.Find("#allList li a").Eq(0).Attr("href")
 			url = "http://www.playbattlegrounds.com" + temp
 
@@ -44,8 +44,8 @@ func getLastUpdate(g *data.GameData)  (UpdateData, bool){
 
 	case data.GTA:
 		rowData, _ := goquery.ParseUrl("http://steamcommunity.com/games/271590/announcements/")
-		if len(rowData.Text()) != 0 {
-			url := rowData.Find("#announcementsContainer .announcement .large_title").Eq(0).Attr("href")
+		if rowData != nil && len(rowData.Text()) != 0 {
+			url = rowData.Find("#announcementsContainer .announcement .large_title").Eq(0).Attr("href")
 
 			runes := []byte(url)
 			startIndex, endIndex := strings.LastIndex(url, "/") + 1, len(url)
@@ -57,7 +57,7 @@ func getLastUpdate(g *data.GameData)  (UpdateData, bool){
 
 	case data.RUST:
 		rowData, _ := goquery.ParseUrl("https://rust.facepunch.com/blog/")
-		if len(rowData.Text()) != 0 {
+		if rowData != nil && len(rowData.Text()) != 0 {
 			root := rowData.Find(".yeargroup .column div .is-9")
 
 			tempId := strings.TrimSpace(root.Find(".month").Eq(0).Text())
@@ -71,7 +71,7 @@ func getLastUpdate(g *data.GameData)  (UpdateData, bool){
 
 	case data.CSGO:
 		rowData, _ := goquery.ParseUrl("http://blog.counter-strike.net/index.php/category/updates/")
-		if len(rowData.Text()) != 0 {
+		if rowData != nil && len(rowData.Text()) != 0 {
 			temp := rowData.Find("#post_container .inner_post").Eq(0)
 
 			id = temp.Find(".post_date").Text()
@@ -85,7 +85,7 @@ func getLastUpdate(g *data.GameData)  (UpdateData, bool){
 
 	case data.OVERWATCH:
 		rowData, _ := goquery.ParseUrl("https://playoverwatch.com/en-us/game/patch-notes/pc")
-		if rowData != nil && len(rowData.Text()) != 0 {
+		if rowData != nil && rowData != nil && len(rowData.Text()) != 0 {
 			root := rowData.Find(".patch-notes-default div .lg-9 .patch-notes-body").First()
 
 			id = root.Attr("id")
@@ -100,7 +100,7 @@ func getLastUpdate(g *data.GameData)  (UpdateData, bool){
 
 	case data.GOVNO:
 		rowData, _ := goquery.ParseUrl("http://www.dota2.com/news/updates/")
-		if len(rowData.Text()) != 0{
+		if rowData != nil && len(rowData.Text()) != 0{
 			root := rowData.Find("#mainLoop div")
 
 			id = root.Attr("id")
@@ -116,7 +116,7 @@ func getLastUpdate(g *data.GameData)  (UpdateData, bool){
 	case data.SQUAD:
 		rowData, _ := goquery.ParseUrl("http://joinsquad.com/")
 
-		if len(rowData.Text()) != 0 {
+		if rowData != nil && len(rowData.Text()) != 0 {
 			root := rowData.Find("#updates .updates-content-box .update").Eq(0)
 
 			id = root.Find("a").Attr("href")
@@ -130,24 +130,21 @@ func getLastUpdate(g *data.GameData)  (UpdateData, bool){
 		break
 
 	case data.RAINBOW:
-		/*rowData, _ := goquery.ParseUrl("https://rainbow6.ubisoft.com/siege/ru-ru/home/index.aspx")
-		if len(rowData.Text()) != 0 {
-			root := rowData.Find("#navmenu-v .r6_menu_updates ul .r6_menu_patches").Eq(0)
+		rowData, _ := goquery.ParseUrl("http://store.steampowered.com/news/?appids=359550")
+		if rowData != nil && len(rowData.Text()) != 0 {
+			rowData = rowData.Find("#news div").Eq(1)
+			url = rowData.Find("div .headline .posttitle a").Attr("href")
 
-			id = root.Attr("class")
-			startIndex := strings.LastIndex(id, "r6_menu") + 8
-			id = id[startIndex:]
-
-			url = "https://rainbow6.ubisoft.com" + root.Find("a").Attr("href")
+			startIndex := strings.LastIndex(url, "/") + 1
+			id = string(url[startIndex:])
 		} else {
 			isWebsiteDown = true
-		}*/
-		isWebsiteDown = true
+		}
 		break
 
 	case data.TEAMFORTESS:
 		rowData, _ := goquery.ParseUrl("http://www.teamfortress.com/?tab=updates")
-		if len(rowData.Text()) != 0 {
+		if rowData != nil && len(rowData.Text()) != 0 {
 			root := rowData.Find("#leftColPosts a").Eq(0)
 
 			id = root.Attr("href")
@@ -162,7 +159,7 @@ func getLastUpdate(g *data.GameData)  (UpdateData, bool){
 
 	case data.LOL:
 		rowData, _ := goquery.ParseUrl("https://playhearthstone.com/en-us/blog/")
-		if len(rowData.Text()) != 0 {
+		if rowData != nil && len(rowData.Text()) != 0 {
 			root := rowData.Find("#blog-articles li").Eq(1)
 
 			id = root.Attr("data-id")
@@ -174,10 +171,10 @@ func getLastUpdate(g *data.GameData)  (UpdateData, bool){
 
 	case data.FORZA_MOTOSPORT:
 		rowData, _ := goquery.ParseUrl("https://forzamotorsport.net/en-US/news")
-		if len(rowData.Text()) != 0 {
+		if rowData != nil && len(rowData.Text()) != 0 {
 			root := rowData.Find(".news_list .common_item").Eq(0)
 
-			url = "https://forzamotorsport.net/en-US/news" + root.Find(".media_container .media_element a").Attr("href")
+			url = "https://forzamotorsport.net" + root.Find(".media_container .media_element a").Attr("href")
 			id = root.Find(".author_date .date").Text()
 		} else {
 			isWebsiteDown = true
@@ -219,6 +216,7 @@ func PageGrabber() {
 
 				if update.isUpdateHot(temp) {
 					log.Println("\tThere is new update for", temp.GameShortName)
+					telegram.SendMessageToMe("There is new update for " + temp.GameShortName + "\t" + update.Id + "\t" + update.Url)
 
 					go telegram.NotifyUsersAboutUpdate(temp, update.Url)
 
