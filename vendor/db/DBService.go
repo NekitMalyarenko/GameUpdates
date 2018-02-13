@@ -33,17 +33,19 @@ func (manager *dbManager) GetGamesData() map[int]*data.GameData {
 	defer rows.Close()
 
 	var (
-		id           int
-		shortName    string
-		fullName     string
-		website      string
-		lastUpdateId string
+		id                 int
+		shortName          string
+		fullName           string
+		website            string
+		lastUpdateId       string
+		countOfUsers       int
+		countOfUniqueUsers int
 	)
 
 	result := make(map[int]*data.GameData)
 
 	for rows.Next() {
-		err = rows.Scan(&id, &shortName, &fullName, &lastUpdateId, &website)
+		err = rows.Scan(&id, &shortName, &fullName, &lastUpdateId, &website, &countOfUsers, &countOfUniqueUsers)
 		if err != nil{
 			log.Fatal(err)
 		}
@@ -288,6 +290,35 @@ func (manager *dbManager) SearchGame(request string) []int {
 	}
 
 	return result
+}
+
+
+func (manager *dbManager) UpdateGamesSubscribersData() {
+	db := manager.db
+	//var temp int
+
+	for _, val := range data.GetGames() {
+		selectUsersNumberQuery := "select from users count(id) where subscribes like '[%" + strconv.Itoa(val.GameId) + "%]';"
+		selectUniqueUsersNumberQuery := "select from users count(id) where subscribes like '[" + strconv.Itoa(val.GameId) + "]';"
+
+		rows, err := db.Exec(selectUsersNumberQuery)
+		if err != nil {
+			log.Fatal(err)
+		}
+		number, _ := rows.RowsAffected()
+		updateUsersNumber := "update games set number_of_users = " + strconv.FormatInt(number, 10) + " where id = " + strconv.Itoa(val.GameId) + ";"
+		db.Exec(updateUsersNumber)
+
+		rows, err = db.Exec(selectUniqueUsersNumberQuery)
+		if err != nil {
+			log.Fatal(err)
+		}
+		number, _ = rows.RowsAffected()
+		updateUsersNumber = "update games set number_of_unique_users = " + strconv.FormatInt(number, 10) + " where id = " + strconv.Itoa(val.GameId) + ";"
+		db.Exec(updateUsersNumber)
+	}
+
+
 }
 
 
